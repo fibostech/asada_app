@@ -29,7 +29,7 @@ class SyncService {
   StreamController<SyncProgress>? _progressController;
   final Stream<SyncProgress> progress;
 
-  const SyncService({
+  SyncService({
     required dio.Dio http,
     required String serverUrl,
     required String apiKey,

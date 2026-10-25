@@ -133,7 +133,7 @@ class _ReadingPageState extends State<ReadingPage> {
                   Text('INICIAR LECTURA'),
                 ],
               ),
-              style: ElevatedButtonStyle(
+              style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
                 padding: EdgeInsets.symmetric(
@@ -167,7 +167,7 @@ class _ReadingPageState extends State<ReadingPage> {
           Container(
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.shade(0.1),
+              color: Colors.orange.withOpacity(0.1),
               borderRadius: BorderRadius.all(8),
             ),
             child: Row(
@@ -189,10 +189,12 @@ class _ReadingPageState extends State<ReadingPage> {
 
           // Ingreso manual
           TextField(
-            label: 'Valor del medidor',
-            hint: 'Ej: 12345.6',
-            value: _manualValue?.toString() ?? '',
-            onChanged: (v) => {
+            decoration: InputDecoration(
+              labelText: 'Valor del medidor',
+              hintText: 'Ej: 12345.6',
+            ),
+            initialValue: _manualValue?.toString() ?? '',
+            onChanged: (v) {
               _manualValue = double.tryParse(v);
             },
             keyboardType: TextInputType.number,
@@ -200,9 +202,11 @@ class _ReadingPageState extends State<ReadingPage> {
           SizedBox(height: 12),
 
           TextField(
-            label: 'Notas (opcional)',
-            hint: 'Observaciones sobre la lectura',
-            value: _manualNotes ?? '',
+            decoration: InputDecoration(
+              labelText: 'Notas (opcional)',
+              hintText: 'Observaciones sobre la lectura',
+            ),
+            initialValue: _manualNotes ?? '',
             onChanged: (v) => _manualNotes = v,
             maxLines: 3,
           ),
@@ -212,7 +216,7 @@ class _ReadingPageState extends State<ReadingPage> {
           ElevatedButton(
             onPressed: () => _saveManual(bloc, meter),
             child: Text('GUARDAR LECTURA'),
-            style: ElevatedButtonStyle(
+            style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(

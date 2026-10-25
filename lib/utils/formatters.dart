@@ -42,7 +42,7 @@ class Formatters {
   /// Formatea progreso como porcentaje.
   static String formatProgress(int completed, int total) {
     if (total == 0) return '0%';
-    final percent = (completed / total * 100).toStringAs(places: 1);
+    final percent = (completed / total * 100).toStringAsFixed(1);
     return '$percent%';
   }
 }

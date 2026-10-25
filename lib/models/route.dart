@@ -13,7 +13,7 @@ class Route {
   final DateTime? updatedAt;
   final String status; // pending | in_progress | completed
 
-  const Route({
+  Route({
     required this.id,
     required this.name,
     this.description,

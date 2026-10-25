@@ -65,18 +65,22 @@ class _LoginPageState extends State<LoginPage> {
 
                       // Servidor
                       TextField(
-                        label: 'URL del Servidor',
-                        hint: 'https://odoo.asa-da.cr',
-                        value: _form.serverUrl,
+                        decoration: InputDecoration(
+                          labelText: 'URL del Servidor',
+                          hintText: 'https://odoo.asa-da.cr',
+                        ),
+                        initialValue: _form.serverUrl,
                         onChanged: (v) => _form.serverUrl = v,
                       ),
                       SizedBox(height: 12),
 
                       // Email
                       TextField(
-                        label: 'Correo Electrónico',
-                        hint: 'fontanero@example.com',
-                        value: _form.email,
+                        decoration: InputDecoration(
+                          labelText: 'Correo Electrónico',
+                          hintText: 'fontanero@example.com',
+                        ),
+                        initialValue: _form.email,
                         onChanged: (v) => _form.email = v,
                         keyboardType: TextInputType.emailAddress,
                       ),
@@ -84,9 +88,11 @@ class _LoginPageState extends State<LoginPage> {
 
                       // API Key
                       TextField(
-                        label: 'API Key',
-                        hint: 'Ingrese su API key de Odoo',
-                        value: _form.apiKey,
+                        decoration: InputDecoration(
+                          labelText: 'API Key',
+                          hintText: 'Ingrese su API key de Odoo',
+                        ),
+                        initialValue: _form.apiKey,
                         onChanged: (v) => _form.apiKey = v,
                         obscureText: !_showPassword,
                       ),
@@ -129,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                         Container(
                           padding: EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.red.shade(0.08),
+                            color: Colors.red.withOpacity(0.08),
                             borderRadius: BorderRadius.all(8),
                           ),
                           child: Text(
@@ -147,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                       ElevatedButton(
                         onPressed: () => _doLogin(bloc),
                         child: Text('INGRESAR'),
-                        style: ElevatedButtonStyle(
+                        style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
                           padding: EdgeInsets.symmetric(
@@ -191,9 +197,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _tryOffline(AuthBloc bloc) async {
-    // Intenta con credenciales guardadas
-    // Por ahora muestra mensaje
-    bloc._errorMessage = 'Modo offline: use credenciales guardadas';
+    // AuthBloc.login deriva automáticamente al modo offline
+    // cuando no hay conexión y existen credenciales guardadas.
+    await bloc.login(
+      _form.serverUrl,
+      _form.email,
+      _form.apiKey,
+    );
   }
 }
 

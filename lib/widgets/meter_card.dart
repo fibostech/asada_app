@@ -87,7 +87,7 @@ class MeterCard extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                   decoration: BoxDecoration(
-                    color: Colors.green.shade(0.1),
+                    color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.all(4),
                   ),
                   child: Text(

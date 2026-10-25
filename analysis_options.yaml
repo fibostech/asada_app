@@ -1,18 +1,1 @@
-analyzer:
-  errors:
-    - unused_import
-    - unused_local_variable
-    - dead_code
-  warnings:
-    - type_check
-    - argument_type
-    - return_type
-  lints:
-    prefer_const: warning
-    prefer_final: warning
-
-flutter_lints:
-  rules:
-    - always_use_package_imports
-    - prefer_const_constructor
-    - sort_constructors_first
+include: package:lints/recommended.yaml

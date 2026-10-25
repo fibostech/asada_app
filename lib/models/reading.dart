@@ -31,7 +31,7 @@ class Reading {
   final bool synced;
   final String? syncError;
 
-  const Reading({
+  Reading({
     required this.id,
     required this.meterId,
     required this.meterCode,

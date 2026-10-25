@@ -20,7 +20,7 @@ class PhotoPreview extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.all(12),
           child: Image(
-            source: AssetImage(photoPath),
+            image: AssetImage(photoPath),
             width: double.infinity,
             height: 240,
             fit: BoxFit.cover,
@@ -35,8 +35,8 @@ class PhotoPreview extends StatelessWidget {
             padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: ocrSuccess
-                  ? Colors.green.shade(0.08)
-                  : Colors.orange.shade(0.08),
+                  ? Colors.green.withOpacity(0.08)
+                  : Colors.orange.withOpacity(0.08),
               borderRadius: BorderRadius.all(8),
             ),
             child: Row(

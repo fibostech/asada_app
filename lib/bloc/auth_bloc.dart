@@ -22,7 +22,7 @@ class AuthBloc {
   StreamController<AuthBlocState>? _stateController;
   final Stream<AuthBlocState> stateChanges;
 
-  const AuthBloc({
+  AuthBloc({
     required AuthService authService,
   })  : _authService = authService,
         stateChanges =

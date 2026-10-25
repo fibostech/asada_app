@@ -21,7 +21,7 @@ class RouteBloc {
   StreamController<RouteBlocState>? _stateController;
   final Stream<RouteBlocState> stateChanges;
 
-  const RouteBloc({
+  RouteBloc({
     required SyncService syncService,
     required MeterService meterService,
   })  : _syncService = syncService,

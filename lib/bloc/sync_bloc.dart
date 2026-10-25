@@ -12,7 +12,7 @@ class SyncBloc {
   StreamController<SyncProgress>? _progressController;
   final Stream<SyncProgress> progress;
 
-  const SyncBloc({
+  SyncBloc({
     required SyncService syncService,
     required MeterService meterService,
   })  : _syncService = syncService,

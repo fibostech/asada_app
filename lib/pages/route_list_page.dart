@@ -141,7 +141,7 @@ class _RouteListPageState extends State<RouteListPage> {
                     style: TextStyle(fontSize: 13),
                   ),
                   Text(
-                    '${route.progressPercent.toStringAs(places: 1)}% completado',
+                    '${route.progressPercent.toStringAsFixed(1)}% completado',
                     style: TextStyle(fontSize: 13),
                   ),
                 ],

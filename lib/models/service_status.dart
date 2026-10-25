@@ -18,7 +18,7 @@ class ServiceStatus {
   final int? changedByUserId;
   final String? notes;
 
-  const ServiceStatus({
+  ServiceStatus({
     required this.meterId,
     required this.meterCode,
     required this.state,

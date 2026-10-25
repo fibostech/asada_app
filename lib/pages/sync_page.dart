@@ -80,8 +80,7 @@ class _SyncPageState extends State<SyncPage> {
             // Botón sincronizar
             Center(
               child: ElevatedButton(
-                onPressed: () => _doSync(bloc),
-                enabled: !bloc.isSyncing,
+                onPressed: bloc.isSyncing ? null : () => _doSync(bloc),
                 child: Row(
                   children: [
                     Icon(Icons.sync, size: 20),
@@ -93,7 +92,7 @@ class _SyncPageState extends State<SyncPage> {
                     ),
                   ],
                 ),
-                style: ElevatedButtonStyle(
+                style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(

@@ -38,8 +38,8 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: ListView(
-        header: _buildHeader(route),
         children: [
+          _buildHeader(route),
           for (final meter in route.meters)
             MeterCard(
               meter: meter,
@@ -69,7 +69,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Progreso: ${route.progressPercent.toStringAs(places: 1)}%',
+                'Progreso: ${route.progressPercent.toStringAsFixed(1)}%',
               ),
               Text(
                 '${route.completedCount}/${route.meters.length}',
@@ -92,11 +92,14 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       meterService: widget.meterService,
     );
 
-    final readingPage = ReadingPage(
-      meter: meter,
-      readingBloc: readingBloc,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReadingPage(
+          meter: meter,
+          readingBloc: readingBloc,
+        ),
+      ),
     );
-
-    // En producción usar Navigator.push
   }
 }
