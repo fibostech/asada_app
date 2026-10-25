@@ -17,7 +17,8 @@ class SyncBloc {
     required MeterService meterService,
   })  : _syncService = syncService,
         _meterService = meterService,
-        progress = (_progressController = StreamController<SyncProgress>()).stream;
+        _progressController = StreamController<SyncProgress>(),
+        progress = _progressController!.stream;
 
   bool get isSyncing => _syncing;
   SyncStatus get status => _syncService.status;

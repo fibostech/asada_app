@@ -14,7 +14,7 @@ class MeterService {
   final List<Route> _localRoutes = [];
   final List<Reading> _pendingReadings = [];
 
-  const MeterService({
+  MeterService({
     required dio.Dio http,
     required String serverUrl,
     required String apiKey,

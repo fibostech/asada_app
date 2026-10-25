@@ -5,7 +5,7 @@ import 'package:asada_app/main.dart';
 
 void main() {
   testWidgets('ASADA App — smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const AsadaApp());
+    await tester.pumpWidget(AsadaApp());
     await tester.pump();
 
     // La app debe mostrar el título

@@ -26,8 +26,8 @@ class RouteBloc {
     required MeterService meterService,
   })  : _syncService = syncService,
         _meterService = meterService,
-        stateChanges =
-            (_stateController = StreamController<RouteBlocState>()).stream;
+        _stateController = StreamController<RouteBlocState>(),
+        stateChanges = _stateController!.stream;
 
   RouteBlocState get state => _state;
   String? get errorMessage => _errorMessage;

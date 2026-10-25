@@ -7,8 +7,6 @@ class CameraService {
   /// Captura una foto usando la cámara del dispositivo.
   /// Retorna la ruta del archivo temporal, o null si se cancela.
   Future<String?> capturePhoto() async {
-    // Envoltorio para image_picker
-    // El fontanero puede tomar foto o elegir de galería.
     try {
       final source = await _pickImageSource();
       switch (source) {
@@ -31,19 +29,18 @@ class CameraService {
   }
 
   Future<String?> _takeFromCamera() async {
-    // Integración con image_picker
-    // cameraImage(retorna ruta temporal)
-    // Por ahora simulamos una ruta.
-    return '/tmp/asada_photo_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    // En producción integrar image_picker real o platform channel.
+    // Mientras tanto, retorna null para que el flujo caiga a ingreso manual.
+    return null;
   }
 
   Future<String?> _pickFromGallery() async {
-    // Integración con image_picker
-    return '/tmp/asada_photo_gallery_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    return null;
   }
 
   /// Valida que la foto tenga calidad suficiente.
   Future<bool> validatePhoto(String path) async {
+    if (path == null) return false;
     try {
       final file = File(path);
       if (!await file.exists()) return false;
@@ -57,6 +54,7 @@ class CameraService {
 
   /// Elimina foto temporal.
   Future<void> cleanupPhoto(String path) async {
+    if (path == null) return;
     try {
       await File(path).delete();
     } catch (_) {

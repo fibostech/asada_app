@@ -25,8 +25,8 @@ class AuthBloc {
   AuthBloc({
     required AuthService authService,
   })  : _authService = authService,
-        stateChanges =
-            (_stateController = StreamController<AuthBlocState>()).stream;
+        _stateController = StreamController<AuthBlocState>(),
+        stateChanges = _stateController!.stream;
 
   AuthBlocState get state => _state;
   String? get errorMessage => _errorMessage;

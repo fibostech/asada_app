@@ -36,7 +36,8 @@ class SyncService {
   })  : _http = http,
         _serverUrl = serverUrl,
         _apiKey = apiKey,
-        progress = (_progressController = StreamController<SyncProgress>()).stream;
+        _progressController = StreamController<SyncProgress>(),
+        progress = _progressController!.stream;
 
   SyncStatus get status => _status;
   SyncStats get stats => _stats;

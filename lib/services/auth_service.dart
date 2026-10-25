@@ -6,7 +6,8 @@ import 'isar/isar.dart' as isar;
 import '../models/user.dart';
 
 /// Servicio de autenticación offline.
-/// Almacena credenciales localmente y valida contra Odoo.
+/// Almacena credenciales localmente (API key ofuscada) y valida contra Odoo.
+/// En producción integrar flutter_secure_storage o platform keychain.
 class AuthService {
   static const String _CREDENTIALS_KEY = 'asada_saved_credentials';
 
@@ -14,7 +15,7 @@ class AuthService {
   final isar.Isar _db;
   User? _currentUser;
 
-  const AuthService({
+  AuthService({
     required dio.Dio http,
     required isar.Isar db,
   })  : _http = http,
@@ -57,7 +58,7 @@ class AuthService {
         'is_active': true,
       });
 
-      // Guardar localmente
+      // Guardar localmente con API key ofuscada
       await _saveCredentials(user);
       _currentUser = user;
       return user;
@@ -67,8 +68,11 @@ class AuthService {
       if (saved != null &&
           saved.email == email &&
           saved.serverUrl == serverUrl) {
-        _currentUser = saved;
-        return saved;
+        // Verificar API key contra la guardada
+        if (saved.apiKey == apiKey) {
+          _currentUser = saved;
+          return saved;
+        }
       }
       throw AuthException('Sin conexión y sin credenciales guardadas: $e');
     }
@@ -86,17 +90,50 @@ class AuthService {
   /// Verifica si hay sesión activa.
   bool get isLoggedIn => _currentUser != null;
 
-  // --- Persistencia local ---
+  // --- Persistencia local con ofuscación ---
+
+  /// Codifica texto en base64 (ofuscación básica).
+  /// En producción usar cifrado simétrico con clave derivada del dispositivo.
+  static String _obfuscate(String text) {
+    return base64Encode(utf8Encode(text));
+  }
+
+  /// Decodifica texto ofuscado.
+  static String _deobfuscate(String encoded) {
+    return utf8Decode(base64Decode(encoded));
+  }
 
   Future<void> _saveCredentials(User user) async {
-    await _db.put(_CREDENTIALS_KEY, jsonEncode(user.toJson()));
+    // Ofuscar API key antes de guardar
+    final safeUser = User(
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      apiKey: _obfuscate(user.apiKey),
+      serverUrl: user.serverUrl,
+      isActive: user.isActive,
+      lastSync: user.lastSync,
+    );
+    await _db.put(_CREDENTIALS_KEY, jsonEncode(safeUser.toJson()));
   }
 
   Future<User?> _loadCredentials() async {
     final data = await _db.get(_CREDENTIALS_KEY) as String?;
     if (data == null) return null;
     try {
-      return User.fromJson(jsonDecode(data) as Map<String, dynamic>);
+      final user = User.fromJson(jsonDecode(data) as Map<String, dynamic>);
+      // Desofuscar API key
+      final deobfuscated =
+          User(
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            apiKey: _deobfuscate(user.apiKey),
+            serverUrl: user.serverUrl,
+            isActive: user.isActive,
+            lastSync: user.lastSync,
+          );
+      return deobfuscated;
     } catch (_) {
       return null;
     }
