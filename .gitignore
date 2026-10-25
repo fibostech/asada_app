@@ -1,0 +1,32 @@
+# Flutter
+.dart_tool/
+build/
+.android/
+.ios/
+.macos/
+.linux/
+.windows/
+.flutter-plugins/
+
+# Dart
+.dart2/index
+.dart2/tool
+.dart2/tool/*.json
+.dart2/tool/version
+.dart2/package_config.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+*.key
+credentials.json
