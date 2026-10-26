@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// Escenario de facturación del medidor.
 enum BillingScenario {
   flatFee,
@@ -74,9 +72,10 @@ class Reading {
     ocrText: json['ocr_text'] as String?,
     ocrSuccess: json['ocr_success'] as bool? ?? false,
     status: ReadingStatus.values.firstWhere(
-        (s) => s.name == json['status'], orElse: ReadingStatus.pending),
+        (s) => s.name == json['status'], orElse: () => ReadingStatus.pending),
     scenario: BillingScenario.values.firstWhere(
-        (s) => s.name == json['scenario'], orElse: BillingScenario.meteredOwn),
+        (s) => s.name == json['scenario'],
+        orElse: () => BillingScenario.meteredOwn),
     notes: json['notes'] as String?,
     timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
     synced: json['synced'] as bool? ?? false,

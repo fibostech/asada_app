@@ -1,6 +1,7 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../models/meter.dart';
+import '../models/service_status.dart';
 import 'status_badge.dart';
 
 /// Tarjeta resumen de medidor para listas.
@@ -17,7 +18,7 @@ class MeterCard extends StatelessWidget {
       child: InkWell(
         onTap: () => onTap?.call(),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -27,7 +28,7 @@ class MeterCard extends StatelessWidget {
                 children: [
                   Text(
                     meter.code,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -38,43 +39,43 @@ class MeterCard extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // Dirección / consumidor
               if (meter.installationAddress != null)
                 Row(
                   children: [
-                    Icon(Icons.locationOn, size: 16),
-                    SizedBox(width: 4),
+                    const Icon(Icons.location_on, size: 16),
+                    const SizedBox(width: 4),
                     Text(
                       meter.installationAddress!,
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                      style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                     ),
                   ],
                 ),
               if (meter.consumerName != null)
                 Row(
                   children: [
-                    Icon(Icons.person, size: 16),
-                    SizedBox(width: 4),
+                    const Icon(Icons.person, size: 16),
+                    const SizedBox(width: 4),
                     Text(
                       meter.consumerName!,
-                      style: TextStyle(fontSize: 14),
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ],
                 ),
 
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // Última lectura
               if (meter.lastReadingValue != null)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Última lectura:', style: TextStyle(fontSize: 12)),
+                    const Text('Última lectura:', style: TextStyle(fontSize: 12)),
                     Text(
                       '${meter.lastReadingValue}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
@@ -85,12 +86,12 @@ class MeterCard extends StatelessWidget {
               // Badge de leído/no leído
               if (isRead)
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    borderRadius: BorderRadius.all(4),
+                    color: Colors.green.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Text(
+                  child: const Text(
                     '✓ Leído',
                     style: TextStyle(fontSize: 11, color: Colors.green),
                   ),

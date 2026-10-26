@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:asada_app/models/user.dart';
 import 'package:asada_app/models/meter.dart';
 import 'package:asada_app/models/reading.dart';
-import 'package:asada_app/models/route.dart';
 import 'package:asada_app/models/service_status.dart';
 
 void main() {

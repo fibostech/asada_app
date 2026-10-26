@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import '../models/reading.dart';
 import '../services/sync_service.dart';
 import '../services/meter_service.dart';
 
@@ -10,15 +9,16 @@ class SyncBloc {
   final MeterService _meterService;
   bool _syncing = false;
   StreamController<SyncProgress>? _progressController;
-  final Stream<SyncProgress> progress;
+  late final Stream<SyncProgress> progress;
 
   SyncBloc({
     required SyncService syncService,
     required MeterService meterService,
   })  : _syncService = syncService,
-        _meterService = meterService,
-        _progressController = StreamController<SyncProgress>(),
-        progress = _progressController!.stream;
+        _meterService = meterService {
+    _progressController = StreamController<SyncProgress>();
+    progress = _progressController!.stream;
+  }
 
   bool get isSyncing => _syncing;
   SyncStatus get status => _syncService.status;

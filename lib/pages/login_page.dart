@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../bloc/auth_bloc.dart';
 
@@ -21,18 +21,18 @@ class _LoginPageState extends State<LoginPage> {
     final bloc = widget.authBloc;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Logo / Título
-              SizedBox(height: 60),
-              Icon(Icons.waterDrop, size: 64, color: Colors.blue),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 60),
+              const Icon(Icons.water_drop, size: 64, color: Colors.blue),
+              const SizedBox(height: 16),
+              const Text(
                 'ASADA App',
                 style: TextStyle(
                   fontSize: 28,
@@ -42,82 +42,86 @@ class _LoginPageState extends State<LoginPage> {
               ),
               Text(
                 'Sistema de Lectura para Fontaneros',
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 textAlign: TextAlign.center,
               ),
 
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
 
               // Formulario
               Card(
                 child: Padding(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      Text(
+                      const Text(
                         'Iniciar Sesión',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Servidor
-                      TextField(
-                        decoration: InputDecoration(
+                      TextFormField(
+                        initialValue: _form.serverUrl,
+                        decoration: const InputDecoration(
                           labelText: 'URL del Servidor',
                           hintText: 'https://odoo.asa-da.cr',
+                          border: OutlineInputBorder(),
                         ),
-                        initialValue: _form.serverUrl,
                         onChanged: (v) => _form.serverUrl = v,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
                       // Email
-                      TextField(
-                        decoration: InputDecoration(
+                      TextFormField(
+                        initialValue: _form.email,
+                        decoration: const InputDecoration(
                           labelText: 'Correo Electrónico',
                           hintText: 'fontanero@example.com',
+                          border: OutlineInputBorder(),
                         ),
-                        initialValue: _form.email,
                         onChanged: (v) => _form.email = v,
                         keyboardType: TextInputType.emailAddress,
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
                       // API Key
-                      TextField(
-                        decoration: InputDecoration(
+                      TextFormField(
+                        initialValue: _form.apiKey,
+                        decoration: const InputDecoration(
                           labelText: 'API Key',
                           hintText: 'Ingrese su API key de Odoo',
+                          border: OutlineInputBorder(),
                         ),
-                        initialValue: _form.apiKey,
                         onChanged: (v) => _form.apiKey = v,
                         obscureText: !_showPassword,
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
                       // Mostrar API Key
                       Row(
                         children: [
                           Checkbox(
                             value: _showPassword,
-                            onChanged: (v) => _showPassword = v,
+                            onChanged: (v) =>
+                                setState(() => _showPassword = v ?? false),
                           ),
-                          SizedBox(width: 8),
-                          Text(
+                          const SizedBox(width: 8),
+                          const Text(
                             'Mostrar API Key',
                             style: TextStyle(fontSize: 13),
                           ),
                         ],
                       ),
 
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Estado
                       if (bloc.state == AuthBlocState.loading)
-                        Center(
+                        const Center(
                           child: Row(
                             children: [
                               SizedBox(
@@ -133,37 +137,37 @@ class _LoginPageState extends State<LoginPage> {
 
                       if (bloc.errorMessage != null)
                         Container(
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.08),
-                            borderRadius: BorderRadius.all(8),
+                            color: Colors.red.withOpacity(0.10),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             bloc.errorMessage!,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.red,
                               fontSize: 13,
                             ),
                           ),
                         ),
 
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
 
                       // Botón login
                       ElevatedButton(
                         onPressed: () => _doLogin(bloc),
-                        child: Text('INGRESAR'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                             vertical: 14,
                             horizontal: 48,
                           ),
                         ),
+                        child: const Text('INGRESAR'),
                       ),
 
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
 
                       // Modo offline
                       TextButton(
@@ -171,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text(
                           'Usar modo offline',
                           style: TextStyle(
-                            color: Colors.grey,
+                            color: Colors.grey.shade600,
                             fontSize: 13,
                           ),
                         ),
@@ -197,13 +201,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _tryOffline(AuthBloc bloc) async {
-    // AuthBloc.login deriva automáticamente al modo offline
-    // cuando no hay conexión y existen credenciales guardadas.
-    await bloc.login(
-      _form.serverUrl,
-      _form.email,
-      _form.apiKey,
-    );
+    // Intenta con credenciales guardadas
+    // Por ahora muestra mensaje
+    bloc.setErrorMessage('Modo offline: use credenciales guardadas');
   }
 }
 

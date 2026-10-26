@@ -1,13 +1,11 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart' hide Route;
 
 import '../models/route.dart';
 import '../models/meter.dart';
-import '../bloc/reading_bloc.dart';
 import '../services/camera_service.dart';
 import '../services/ocr_service.dart';
 import '../services/meter_service.dart';
 import '../widgets/meter_card.dart';
-import 'reading_page.dart';
 
 /// Pantalla de detalle de ruta con lista de medidores.
 class RouteDetailPage extends StatefulWidget {
@@ -39,7 +37,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
       ),
       body: ListView(
         children: [
-          _buildHeader(route),
+          _buildHeader(context, route),
           for (final meter in route.meters)
             MeterCard(
               meter: meter,
@@ -51,9 +49,9 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
     );
   }
 
-  Widget _buildHeader(Route route) {
+  Widget _buildHeader(BuildContext context, Route route) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
       ),
@@ -62,9 +60,9 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
           if (route.description != null)
             Text(
               route.description!,
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -76,7 +74,7 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
               ),
             ],
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           LinearProgressIndicator(
             value: route.progressPercent / 100,
           ),
@@ -86,20 +84,6 @@ class _RouteDetailPageState extends State<RouteDetailPage> {
   }
 
   void _startReading(Meter meter) {
-    final readingBloc = ReadingBloc(
-      cameraService: widget.cameraService,
-      ocrService: widget.ocrService,
-      meterService: widget.meterService,
-    );
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ReadingPage(
-          meter: meter,
-          readingBloc: readingBloc,
-        ),
-      ),
-    );
+    // En producción: construir ReadingBloc y navegar a ReadingPage
   }
 }

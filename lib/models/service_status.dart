@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// Estado del servicio de un medidor/cliente.
 enum ServiceState {
   active,
@@ -42,7 +40,7 @@ class ServiceStatus {
     meterId: json['meter_id'] as int,
     meterCode: json['meter_code'] as String,
     state: ServiceState.values.firstWhere(
-        (s) => s.name == json['state'], orElse: ServiceState.active),
+        (s) => s.name == json['state'], orElse: () => ServiceState.active),
     reason: json['reason'] as String?,
     changedAt: DateTime.tryParse(json['changed_at'] as String) ?? DateTime.now(),
     changedByUserId: json['changed_by_user_id'] as int?,

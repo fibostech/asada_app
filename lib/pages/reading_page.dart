@@ -1,7 +1,6 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../models/meter.dart';
-import '../models/reading.dart';
 import '../bloc/reading_bloc.dart';
 import '../widgets/photo_preview.dart';
 
@@ -19,7 +18,6 @@ class ReadingPage extends StatefulWidget {
 class _ReadingPageState extends State<ReadingPage> {
   double? _manualValue;
   String? _manualNotes;
-  bool _showManualEntry = false;
 
   @override
   Widget build(BuildContext context) {
@@ -39,10 +37,10 @@ class _ReadingPageState extends State<ReadingPage> {
       BuildContext context, ReadingBloc bloc, Meter meter) {
     switch (bloc.state) {
       case ReadingBlocState.initial:
-        return _buildStartView(context, meter);
+        return _buildStartView(context, bloc, meter);
 
       case ReadingBlocState.capturing:
-        return Center(
+        return const Center(
           child: Column(
             children: [
               SizedBox(
@@ -62,7 +60,7 @@ class _ReadingPageState extends State<ReadingPage> {
         );
 
       case ReadingBlocState.processingOcr:
-        return Center(
+        return const Center(
           child: Column(
             children: [
               SizedBox(
@@ -91,23 +89,24 @@ class _ReadingPageState extends State<ReadingPage> {
         return _buildError(context, bloc, meter);
 
       default:
-        return Center(
+        return const Center(
           child: Text('Preparando lectura...'),
         );
     }
   }
 
-  Widget _buildStartView(BuildContext context, Meter meter) {
+  Widget _buildStartView(
+      BuildContext context, ReadingBloc bloc, Meter meter) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Icon(Icons.cameraAlt, size: 64, color: Colors.blue),
-            SizedBox(height: 16),
+            const Icon(Icons.camera_alt, size: 64, color: Colors.blue),
+            const SizedBox(height: 16),
             Text(
               'Medidor: ${meter.code}',
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
@@ -115,31 +114,32 @@ class _ReadingPageState extends State<ReadingPage> {
             if (meter.installationAddress != null)
               Text(
                 meter.installationAddress!,
-                style: TextStyle(fontSize: 14, color: Colors.grey),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
               ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             if (meter.lastReadingValue != null)
               Text(
                 'Última lectura: ${meter.lastReadingValue}',
-                style: TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 14),
               ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () => _doReading(bloc, meter),
-              child: Row(
-                children: [
-                  Icon(Icons.cameraAlt, size: 20),
-                  SizedBox(width: 8),
-                  Text('INICIAR LECTURA'),
-                ],
-              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   vertical: 16,
                   horizontal: 32,
                 ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.camera_alt, size: 20),
+                  SizedBox(width: 8),
+                  Text('INICIAR LECTURA'),
+                ],
               ),
             ),
           ],
@@ -151,7 +151,7 @@ class _ReadingPageState extends State<ReadingPage> {
   Widget _buildManualEntry(
       BuildContext context, ReadingBloc bloc, Meter meter) {
     return Padding(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           // Foto tomada
@@ -161,18 +161,18 @@ class _ReadingPageState extends State<ReadingPage> {
               ocrText: bloc.ocrText,
               ocrSuccess: false,
             ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Mensaje
           Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.orange.withOpacity(0.1),
-              borderRadius: BorderRadius.all(8),
+              color: Colors.orange.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Row(
+            child: const Row(
               children: [
-                Icon(Icons.warning, size: 24, color: Colors.orange),
+                Icon(Icons.warning_amber, size: 24, color: Colors.orange),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -185,45 +185,47 @@ class _ReadingPageState extends State<ReadingPage> {
             ),
           ),
 
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Ingreso manual
-          TextField(
-            decoration: InputDecoration(
+          TextFormField(
+            initialValue: _manualValue?.toString() ?? '',
+            decoration: const InputDecoration(
               labelText: 'Valor del medidor',
               hintText: 'Ej: 12345.6',
+              border: OutlineInputBorder(),
             ),
-            initialValue: _manualValue?.toString() ?? '',
             onChanged: (v) {
               _manualValue = double.tryParse(v);
             },
             keyboardType: TextInputType.number,
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
-          TextField(
-            decoration: InputDecoration(
+          TextFormField(
+            initialValue: _manualNotes ?? '',
+            decoration: const InputDecoration(
               labelText: 'Notas (opcional)',
               hintText: 'Observaciones sobre la lectura',
+              border: OutlineInputBorder(),
             ),
-            initialValue: _manualNotes ?? '',
             onChanged: (v) => _manualNotes = v,
             maxLines: 3,
           ),
 
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           ElevatedButton(
             onPressed: () => _saveManual(bloc, meter),
-            child: Text('GUARDAR LECTURA'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
               foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 vertical: 14,
                 horizontal: 32,
               ),
             ),
+            child: const Text('GUARDAR LECTURA'),
           ),
         ],
       ),
@@ -233,28 +235,28 @@ class _ReadingPageState extends State<ReadingPage> {
   Widget _buildCompleted(BuildContext context, ReadingBloc bloc) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Icon(Icons.checkCircle, size: 64, color: Colors.green),
-            SizedBox(height: 16),
-            Text(
+            const Icon(Icons.check_circle, size: 64, color: Colors.green),
+            const SizedBox(height: 16),
+            const Text(
               '¡Lectura guardada!',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             if (bloc.ocrText != null)
               Text(
                 'Valor OCR: ${bloc.ocrText}',
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Volver a la ruta'),
+              child: const Text('Volver a la ruta'),
             ),
           ],
         ),
@@ -266,24 +268,24 @@ class _ReadingPageState extends State<ReadingPage> {
       BuildContext context, ReadingBloc bloc, Meter meter) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Icon(Icons.error, size: 48, color: Colors.red),
-            SizedBox(height: 12),
+            const Icon(Icons.error, size: 48, color: Colors.red),
+            const SizedBox(height: 12),
             Text(
               bloc.errorMessage ?? 'Error en la lectura',
-              style: TextStyle(color: Colors.red),
+              style: const TextStyle(color: Colors.red),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () => _doReading(bloc, meter),
-              child: Text('Reintentar'),
+              child: const Text('Reintentar'),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
           ],
         ),
@@ -293,9 +295,6 @@ class _ReadingPageState extends State<ReadingPage> {
 
   void _doReading(ReadingBloc bloc, Meter meter) async {
     await bloc.startReading(meter);
-    if (bloc.state == ReadingBlocState.manualEntry) {
-      _showManualEntry = true;
-    }
   }
 
   void _saveManual(ReadingBloc bloc, Meter meter) async {

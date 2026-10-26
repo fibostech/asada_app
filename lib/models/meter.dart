@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// Medidor asignado a una ruta.
 class Meter {
   final int id;

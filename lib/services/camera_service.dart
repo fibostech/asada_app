@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 /// Maneja captura de fotos desde cámara o galería.
 class CameraService {
@@ -19,7 +17,6 @@ class CameraService {
       print('Error capturando foto: $e');
       return null;
     }
-    return null;
   }
 
   Future<ImageSource> _pickImageSource() async {
@@ -40,7 +37,6 @@ class CameraService {
 
   /// Valida que la foto tenga calidad suficiente.
   Future<bool> validatePhoto(String path) async {
-    if (path == null) return false;
     try {
       final file = File(path);
       if (!await file.exists()) return false;
@@ -54,7 +50,6 @@ class CameraService {
 
   /// Elimina foto temporal.
   Future<void> cleanupPhoto(String path) async {
-    if (path == null) return;
     try {
       await File(path).delete();
     } catch (_) {

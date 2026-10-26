@@ -1,20 +1,26 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dio/dio.dart' as dio;
+import 'package:dio/dio.dart' as dio;
 
 import '../models/reading.dart';
 import '../models/route.dart';
-import '../models/meter.dart';
 
 /// Estado de sincronización.
 enum SyncStatus { idle, syncing, completed, failed }
 
 /// Estadísticas de sincronización.
 class SyncStats {
-  int total = 0;
-  int success = 0;
-  int failed = 0;
-  int skipped = 0;
+  final int total;
+  final int success;
+  final int failed;
+  final int skipped;
+
+  const SyncStats({
+    this.total = 0,
+    this.success = 0,
+    this.failed = 0,
+    this.skipped = 0,
+  });
 }
 
 /// Servicio de sincronización batch.
@@ -24,10 +30,10 @@ class SyncService {
   final String _apiKey;
 
   SyncStatus _status = SyncStatus.idle;
-  SyncStats _stats = SyncStats();
+  SyncStats _stats = const SyncStats();
   String? _lastError;
   StreamController<SyncProgress>? _progressController;
-  final Stream<SyncProgress> progress;
+  late final Stream<SyncProgress> progress;
 
   SyncService({
     required dio.Dio http,
@@ -35,9 +41,10 @@ class SyncService {
     required String apiKey,
   })  : _http = http,
         _serverUrl = serverUrl,
-        _apiKey = apiKey,
-        _progressController = StreamController<SyncProgress>(),
-        progress = _progressController!.stream;
+        _apiKey = apiKey {
+    _progressController = StreamController<SyncProgress>();
+    progress = _progressController!.stream;
+  }
 
   SyncStatus get status => _status;
   SyncStats get stats => _stats;
@@ -46,12 +53,12 @@ class SyncService {
   /// Sincroniza lecturas pendientes en batch.
   Future<SyncResult> syncReadings(List<Reading> pendingReadings) async {
     _status = SyncStatus.syncing;
-    _stats = SyncStats();
+    _stats = const SyncStats();
     _lastError = null;
 
     if (pendingReadings.isEmpty) {
       _status = SyncStatus.completed;
-      return SyncResult(success: true, message: 'No hay lecturas pendientes');
+      return const SyncResult(success: true, message: 'No hay lecturas pendientes');
     }
 
     int successCount = 0;
@@ -85,7 +92,7 @@ class SyncService {
       }
 
       // Pequeña pausa entre envíos
-      await Future.delayed(Duration(milliseconds: 200));
+      await Future.delayed(const Duration(milliseconds: 200));
     }
 
     _stats = SyncStats(
@@ -116,17 +123,19 @@ class SyncService {
           'reading': reading.toJson(),
         },
       },
-      headers: {
-        'API-KEY': _apiKey,
-        'Content-Type': 'application/json',
-      },
+      options: dio.Options(
+        headers: {
+          'API-KEY': _apiKey,
+          'Content-Type': 'application/json',
+        },
+      ),
     );
 
     if (response.statusCode != 200) {
       throw SyncException('HTTP ${response.statusCode}');
     }
 
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final body = jsonDecode(response.data as String) as Map<String, dynamic>;
     if (body['error'] != null) {
       throw SyncException(body['error']['message'] ?? 'Error del servidor');
     }
@@ -141,16 +150,18 @@ class SyncService {
           'user_id': userId.toString(),
           'status': 'pending',
         },
-        headers: {
-          'API-KEY': _apiKey,
-        },
+        options: dio.Options(
+          headers: {
+            'API-KEY': _apiKey,
+          },
+        ),
       );
 
       if (response.statusCode != 200) {
         throw SyncException('Error descargando rutas: ${response.statusCode}');
       }
 
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final body = jsonDecode(response.data as String) as Map<String, dynamic>;
       if (body['error'] != null) {
         throw SyncException(body['error']['message']);
       }
@@ -198,6 +209,10 @@ class SyncResult {
   });
 }
 
-class SyncException extends Exception {
-  const SyncException(String message) : super(message);
+class SyncException implements Exception {
+  final String message;
+  const SyncException(this.message);
+
+  @override
+  String toString() => 'SyncException: $message';
 }

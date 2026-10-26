@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'meter.dart';
 
 /// Ruta de medidores asignada a un fontanero.
@@ -54,12 +53,12 @@ class Route {
     description: json['description'] as String?,
     assignedUserId: json['assigned_user_id'] as int?,
     assignedUserName: json['assigned_user_name'] as String?,
-    meters: (json['meters'] as List<dynamic>?)
-            ?.cast<Map<String, dynamic>>()
-            ?.map((m) => Meter.fromJson(m))
-            ?.toList() ??
-        const [],
-    createdAt: DateTime.tryParse(json['created_at'] as String?) ?? DateTime.now(),
+    meters: (json['meters'] as List<dynamic>? ?? const [])
+            .cast<Map<String, dynamic>>()
+            .map((m) => Meter.fromJson(m))
+            .toList(),
+    createdAt: DateTime.tryParse(json['created_at'] as String? ?? '') ??
+        DateTime.now(),
     updatedAt: json['updated_at'] != null
         ? DateTime.tryParse(json['updated_at'] as String)
         : null,

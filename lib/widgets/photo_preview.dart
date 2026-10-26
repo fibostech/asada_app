@@ -1,4 +1,6 @@
-import 'package:flutter/widgets.dart';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 
 /// Vista previa de la foto tomada durante la lectura.
 class PhotoPreview extends StatelessWidget {
@@ -18,41 +20,41 @@ class PhotoPreview extends StatelessWidget {
       children: [
         // Imagen
         ClipRRect(
-          borderRadius: BorderRadius.all(12),
-          child: Image(
-            image: AssetImage(photoPath),
+          borderRadius: BorderRadius.circular(12),
+          child: Image.file(
+            File(photoPath),
             width: double.infinity,
             height: 240,
             fit: BoxFit.cover,
           ),
         ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         // Resultado OCR
         if (ocrText != null)
           Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: ocrSuccess
                   ? Colors.green.withOpacity(0.08)
                   : Colors.orange.withOpacity(0.08),
-              borderRadius: BorderRadius.all(8),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
                 Icon(
-                  ocrSuccess ? Icons.checkCircle : Icons.warning,
+                  ocrSuccess ? Icons.check_circle : Icons.warning_amber,
                   size: 20,
                   color: ocrSuccess ? Colors.green : Colors.orange,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     ocrSuccess
                         ? 'OCR: $ocrText'
                         : 'OCR: No se pudo leer ($ocrText)',
-                    style: TextStyle(fontSize: 14),
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
               ],

@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
-import 'dio/dio.dart' as dio;
-import 'isar/isar.dart' as isar;
+import 'package:dio/dio.dart' as dio;
 
 import '../models/user.dart';
 
@@ -11,15 +9,16 @@ import '../models/user.dart';
 class AuthService {
   static const String _CREDENTIALS_KEY = 'asada_saved_credentials';
 
+  // Almacén local en memoria (skeleton). En producción se persiste
+  // con Isar/secure storage.
+  static final Map<String, String> _localStore = {};
+
   final dio.Dio _http;
-  final isar.Isar _db;
   User? _currentUser;
 
   AuthService({
     required dio.Dio http,
-    required isar.Isar db,
-  })  : _http = http,
-        _db = db;
+  }) : _http = http;
 
   /// Intenta login contra Odoo.
   /// [serverUrl] ej. "https://odoo.example.com"
@@ -43,7 +42,7 @@ class AuthService {
         throw AuthException('Error de conexión: ${response.statusCode}');
       }
 
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final body = jsonDecode(response.data as String) as Map<String, dynamic>;
       if (body['error'] != null) {
         throw AuthException(body['error']['message'] ?? 'Error desconocido');
       }
@@ -81,7 +80,7 @@ class AuthService {
   /// Cierra sesión y limpia credenciales.
   Future<void> logout() async {
     _currentUser = null;
-    await _db.remove(_CREDENTIALS_KEY);
+    _localStore.remove(_CREDENTIALS_KEY);
   }
 
   /// Recupera el usuario en sesión.
@@ -95,12 +94,12 @@ class AuthService {
   /// Codifica texto en base64 (ofuscación básica).
   /// En producción usar cifrado simétrico con clave derivada del dispositivo.
   static String _obfuscate(String text) {
-    return base64Encode(utf8Encode(text));
+    return base64Encode(utf8.encode(text));
   }
 
   /// Decodifica texto ofuscado.
   static String _deobfuscate(String encoded) {
-    return utf8Decode(base64Decode(encoded));
+    return utf8.decode(base64Decode(encoded));
   }
 
   Future<void> _saveCredentials(User user) async {
@@ -114,17 +113,16 @@ class AuthService {
       isActive: user.isActive,
       lastSync: user.lastSync,
     );
-    await _db.put(_CREDENTIALS_KEY, jsonEncode(safeUser.toJson()));
+    _localStore[_CREDENTIALS_KEY] = jsonEncode(safeUser.toJson());
   }
 
   Future<User?> _loadCredentials() async {
-    final data = await _db.get(_CREDENTIALS_KEY) as String?;
+    final data = _localStore[_CREDENTIALS_KEY];
     if (data == null) return null;
     try {
       final user = User.fromJson(jsonDecode(data) as Map<String, dynamic>);
       // Desofuscar API key
-      final deobfuscated =
-          User(
+      final deobfuscated = User(
             id: user.id,
             name: user.name,
             email: user.email,
@@ -140,6 +138,10 @@ class AuthService {
   }
 }
 
-class AuthException extends Exception {
-  const AuthException(String message) : super(message);
+class AuthException implements Exception {
+  final String message;
+  const AuthException(this.message);
+
+  @override
+  String toString() => 'AuthException: $message';
 }

@@ -1,26 +1,13 @@
-import 'dart:convert';
-import 'dart:math';
-import 'dio/dio.dart' as dio;
-
 import '../models/meter.dart';
 import '../models/reading.dart';
 import '../models/route.dart';
 
 /// Servicio de gestión de medidores y lecturas offline.
 class MeterService {
-  final dio.Dio _http;
-  final String _serverUrl;
-  final String _apiKey;
   final List<Route> _localRoutes = [];
   final List<Reading> _pendingReadings = [];
 
-  MeterService({
-    required dio.Dio http,
-    required String serverUrl,
-    required String apiKey,
-  })  : _http = http,
-        _serverUrl = serverUrl,
-        _apiKey = apiKey;
+  MeterService();
 
   /// Obtiene rutas locales (ya descargadas).
   List<Route> get localRoutes => List.unmodifiable(_localRoutes);

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dio/dio.dart' as dio;
-import 'isar/isar.dart' as isar;
 
 import '../models/user.dart';
 import '../services/auth_service.dart';
@@ -20,18 +18,24 @@ class AuthBloc {
   AuthBlocState _state = AuthBlocState.initial;
   String? _errorMessage;
   StreamController<AuthBlocState>? _stateController;
-  final Stream<AuthBlocState> stateChanges;
+  late final Stream<AuthBlocState> stateChanges;
 
   AuthBloc({
     required AuthService authService,
-  })  : _authService = authService,
-        _stateController = StreamController<AuthBlocState>(),
-        stateChanges = _stateController!.stream;
+  }) : _authService = authService {
+    _stateController = StreamController<AuthBlocState>();
+    stateChanges = _stateController!.stream;
+  }
 
   AuthBlocState get state => _state;
   String? get errorMessage => _errorMessage;
   User? get currentUser => _authService.currentUser;
   bool get isLoggedIn => _authService.isLoggedIn;
+
+  /// Establece un mensaje de error visible (usado por la UI).
+  void setErrorMessage(String message) {
+    _errorMessage = message;
+  }
 
   /// Inicia sesión.
   Future<void> login(String serverUrl, String email, String apiKey) async {

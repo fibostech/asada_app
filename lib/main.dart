@@ -6,19 +6,19 @@ import 'pages/route_list_page.dart';
 import 'pages/sync_page.dart';
 
 void main() {
-  runApp(const AsadaApp());
+  runApp(AsadaApp());
 }
 
 /// Widget raíz de la aplicación ASADA.
 class AsadaApp extends StatelessWidget {
-  const AsadaApp({super.key});
+  AsadaApp();
 
   @override
   Widget build(BuildContext context) {
     final deps = AppDependencies();
 
     return MaterialApp(
-      title: 'ASADA App — Lectura de Medidores',
+      title: 'ASADA App',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
@@ -32,7 +32,7 @@ class AsadaApp extends StatelessWidget {
 class HomePage extends StatefulWidget {
   final AppDependencies deps;
 
-  const HomePage({super.key, required this.deps});
+  HomePage({required this.deps});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: _buildDashboard(context, deps),
-      bottomAppBar: _buildBottomNav(context, deps),
+      bottomNavigationBar: _buildBottomNav(context, deps),
     );
   }
 
@@ -112,7 +112,10 @@ class _HomePageState extends State<HomePage> {
               () {
                 Navigator.push(
                   context,
-                  RouteListPage(routeBloc: deps.routeBloc),
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        RouteListPage(routeBloc: deps.routeBloc),
+                  ),
                 );
               },
             ),
@@ -125,7 +128,9 @@ class _HomePageState extends State<HomePage> {
               () {
                 Navigator.push(
                   context,
-                  SyncPage(syncBloc: deps.syncBloc),
+                  MaterialPageRoute(
+                    builder: (_) => SyncPage(syncBloc: deps.syncBloc),
+                  ),
                 );
               },
             ),
@@ -177,7 +182,7 @@ class _HomePageState extends State<HomePage> {
           child: Padding(
             padding: EdgeInsets.all(16),
             child: Column(
-              cross: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(icon, size: 32, color: color),
                 SizedBox(height: 8),
@@ -209,34 +214,41 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(
-            icon: Icons.home,
+            icon: Icon(Icons.home),
             tooltip: 'Inicio',
             onPressed: () {
-              Navigator.push(context, HomePage(deps: deps));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => HomePage(deps: deps)),
+              );
             },
           ),
           IconButton(
-            icon: Icons.route,
+            icon: Icon(Icons.route),
             tooltip: 'Rutas',
             onPressed: () {
               Navigator.push(
                 context,
-                RouteListPage(routeBloc: deps.routeBloc),
+                MaterialPageRoute(
+                  builder: (_) => RouteListPage(routeBloc: deps.routeBloc),
+                ),
               );
             },
           ),
           IconButton(
-            icon: Icons.sync,
+            icon: Icon(Icons.sync),
             tooltip: 'Sincronizar',
             onPressed: () {
               Navigator.push(
                 context,
-                SyncPage(syncBloc: deps.syncBloc),
+                MaterialPageRoute(
+                  builder: (_) => SyncPage(syncBloc: deps.syncBloc),
+                ),
               );
             },
           ),
           IconButton(
-            icon: Icons.person,
+            icon: Icon(Icons.person),
             tooltip: 'Perfil',
             onPressed: () {
               // Perfil / Cerrar sesión

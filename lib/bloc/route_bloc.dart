@@ -19,15 +19,16 @@ class RouteBloc {
   RouteBlocState _state = RouteBlocState.initial;
   String? _errorMessage;
   StreamController<RouteBlocState>? _stateController;
-  final Stream<RouteBlocState> stateChanges;
+  late final Stream<RouteBlocState> stateChanges;
 
   RouteBloc({
     required SyncService syncService,
     required MeterService meterService,
   })  : _syncService = syncService,
-        _meterService = meterService,
-        _stateController = StreamController<RouteBlocState>(),
-        stateChanges = _stateController!.stream;
+        _meterService = meterService {
+    _stateController = StreamController<RouteBlocState>();
+    stateChanges = _stateController!.stream;
+  }
 
   RouteBlocState get state => _state;
   String? get errorMessage => _errorMessage;

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../models/service_status.dart';
 
@@ -13,10 +13,10 @@ class StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final config = _configForState(state);
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
       decoration: BoxDecoration(
         color: config.color,
-        borderRadius: BorderRadius.all(12),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         label ?? _defaultLabel(state),
@@ -32,15 +32,15 @@ class StatusBadge extends StatelessWidget {
   _BadgeConfig _configForState(ServiceState state) {
     switch (state) {
       case ServiceState.active:
-        return _BadgeConfig(Colors.green, Colors.white);
+        return const _BadgeConfig(Colors.green, Colors.white);
       case ServiceState.suspended:
-        return _BadgeConfig(Colors.orange, Colors.white);
+        return const _BadgeConfig(Colors.orange, Colors.white);
       case ServiceState.disconnected:
-        return _BadgeConfig(Colors.red, Colors.white);
+        return const _BadgeConfig(Colors.red, Colors.white);
       case ServiceState.damaged:
-        return _BadgeConfig(Colors.deepOrange, Colors.white);
+        return const _BadgeConfig(Colors.deepOrange, Colors.white);
       case ServiceState.pendingInstallation:
-        return _BadgeConfig(Colors.blue, Colors.white);
+        return const _BadgeConfig(Colors.blue, Colors.white);
     }
   }
 

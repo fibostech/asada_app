@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
 /// Almacena credenciales offline del fontanero.
 class User {
   final int id;
@@ -11,7 +8,7 @@ class User {
   final bool isActive;
   final DateTime lastSync;
 
-  const User({
+  User({
     required this.id,
     required this.name,
     required this.email,
@@ -40,6 +37,7 @@ class User {
     apiKey: json['api_key'] as String,
     serverUrl: json['server_url'] as String,
     isActive: json['is_active'] as bool? ?? true,
-    lastSync: DateTime.tryParse(json['last_sync'] as String?) ?? null,
+    lastSync: DateTime.tryParse(json['last_sync'] as String? ?? '') ??
+        DateTime.now(),
   );
 }

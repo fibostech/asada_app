@@ -1,8 +1,7 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart' hide Route;
 
 import '../bloc/route_bloc.dart';
 import '../models/route.dart';
-import 'route_detail_page.dart';
 
 /// Pantalla de lista de rutas asignadas.
 class RouteListPage extends StatefulWidget {
@@ -21,7 +20,7 @@ class _RouteListPageState extends State<RouteListPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mis Rutas'),
+        title: const Text('Mis Rutas'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: _buildBody(context, bloc),
@@ -36,7 +35,7 @@ class _RouteListPageState extends State<RouteListPage> {
   Widget _buildBody(BuildContext context, RouteBloc bloc) {
     switch (bloc.state) {
       case RouteBlocState.loading:
-        return Center(
+        return const Center(
           child: Column(
             children: [
               SizedBox(
@@ -54,16 +53,16 @@ class _RouteListPageState extends State<RouteListPage> {
         return Center(
           child: Column(
             children: [
-              Icon(Icons.error, size: 48, color: Colors.red),
-              SizedBox(height: 12),
+              const Icon(Icons.error, size: 48, color: Colors.red),
+              const SizedBox(height: 12),
               Text(
                 bloc.errorMessage ?? 'Error desconocido',
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => _refreshRoutes(bloc),
-                child: Text('Reintentar'),
+                child: const Text('Reintentar'),
               ),
             ],
           ),
@@ -72,7 +71,7 @@ class _RouteListPageState extends State<RouteListPage> {
       case RouteBlocState.ready:
         final routes = bloc.routes;
         if (routes.isEmpty) {
-          return Center(
+          return const Center(
             child: Column(
               children: [
                 Icon(Icons.info, size: 48, color: Colors.grey),
@@ -95,10 +94,10 @@ class _RouteListPageState extends State<RouteListPage> {
         );
 
       default:
-        return Center(
+        return const Center(
           child: Column(
             children: [
-              Icon(Icons.cloudDownload, size: 48, color: Colors.blue),
+              Icon(Icons.cloud_download, size: 48, color: Colors.blue),
               SizedBox(height: 12),
               Text(
                 'Presione + para descargar\nsus rutas asignadas.',
@@ -115,38 +114,38 @@ class _RouteListPageState extends State<RouteListPage> {
       child: InkWell(
         onTap: () => _openRoute(route),
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
-            cross: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 route.name,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              if (route.description != null) SizedBox(height: 4),
+              if (route.description != null) const SizedBox(height: 4),
               if (route.description != null)
                 Text(
                   route.description!,
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     '${route.meters.length} medidores',
-                    style: TextStyle(fontSize: 13),
+                    style: const TextStyle(fontSize: 13),
                   ),
                   Text(
                     '${route.progressPercent.toStringAsFixed(1)}% completado',
-                    style: TextStyle(fontSize: 13),
+                    style: const TextStyle(fontSize: 13),
                   ),
                 ],
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               LinearProgressIndicator(
                 value: route.progressPercent / 100,
               ),

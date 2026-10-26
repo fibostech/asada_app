@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 import '../bloc/sync_bloc.dart';
 import '../services/sync_service.dart';
@@ -20,18 +20,18 @@ class _SyncPageState extends State<SyncPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sincronización'),
+        title: const Text('Sincronización'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
-          cross: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Estado actual
             Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     Row(
@@ -41,11 +41,11 @@ class _SyncPageState extends State<SyncPage> {
                           size: 32,
                           color: _statusColor(bloc.status),
                         ),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             _statusLabel(bloc.status),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -53,21 +53,21 @@ class _SyncPageState extends State<SyncPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
 
                     if (bloc.isSyncing) ...[
-                      LinearProgressIndicator(),
-                      SizedBox(height: 8),
+                      const LinearProgressIndicator(),
+                      const SizedBox(height: 8),
                     ],
 
                     // Estadísticas
                     if (bloc.stats.total > 0) ...[
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         'Total: ${bloc.stats.total} | '
                         'Exitosas: ${bloc.stats.success} | '
                         'Fallidas: ${bloc.stats.failed}',
-                        style: TextStyle(fontSize: 14),
+                        style: const TextStyle(fontSize: 14),
                       ),
                     ],
                   ],
@@ -75,16 +75,25 @@ class _SyncPageState extends State<SyncPage> {
               ),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Botón sincronizar
             Center(
               child: ElevatedButton(
                 onPressed: bloc.isSyncing ? null : () => _doSync(bloc),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 32,
+                  ),
+                ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.sync, size: 20),
-                    SizedBox(width: 8),
+                    const Icon(Icons.sync, size: 20),
+                    const SizedBox(width: 8),
                     Text(
                       bloc.isSyncing
                           ? 'SINCRONIZANDO...'
@@ -92,36 +101,28 @@ class _SyncPageState extends State<SyncPage> {
                     ),
                   ],
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(
-                    vertical: 14,
-                    horizontal: 32,
-                  ),
-                ),
               ),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Historial
-            Text(
+            const Text(
               'Últimas sincronizaciones',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             // Placeholder para historial
             Card(
               child: Padding(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 child: Text(
                   'Las sincronizaciones completadas aparecerán aquí.',
-                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                 ),
               ),
             ),
@@ -138,11 +139,11 @@ class _SyncPageState extends State<SyncPage> {
   IconData _statusIcon(SyncStatus status) {
     switch (status) {
       case SyncStatus.idle:
-        return Icons.cloudDone;
+        return Icons.cloud_done;
       case SyncStatus.syncing:
         return Icons.sync;
       case SyncStatus.completed:
-        return Icons.checkCircle;
+        return Icons.check_circle;
       case SyncStatus.failed:
         return Icons.error;
     }

@@ -1,5 +1,4 @@
-import 'dio/dio.dart' as dio;
-import 'isar/isar.dart' as isar;
+import 'package:dio/dio.dart' as dio;
 
 import 'bloc/auth_bloc.dart';
 import 'bloc/route_bloc.dart';
@@ -10,23 +9,15 @@ import 'services/camera_service.dart';
 import 'services/meter_service.dart';
 import 'services/ocr_service.dart';
 import 'services/sync_service.dart';
-import 'pages/login_page.dart';
-import 'pages/route_list_page.dart';
-import 'pages/sync_page.dart';
 
 /// Inicializador y contenedor de dependencias de la app.
 class AppDependencies {
   dio.Dio http = dio.Dio();
-  isar.Isar db = isar.Isar();
 
   // Servicios
-  late final AuthService authService = AuthService(http: http, db: db);
+  late final AuthService authService = AuthService(http: http);
   late final CameraService cameraService = CameraService();
-  late final MeterService meterService = MeterService(
-    http: http,
-    serverUrl: _serverUrl,
-    apiKey: _apiKey,
-  );
+  late final MeterService meterService = MeterService();
   late final OcrService ocrService = OcrService();
   late final SyncService syncService = SyncService(
     http: http,

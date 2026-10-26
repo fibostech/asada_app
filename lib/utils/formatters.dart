@@ -1,12 +1,10 @@
-import 'dart:convert';
-import 'intl/intl.dart' as intl;
+import 'package:intl/intl.dart' as intl;
 
 /// Formateo de valores para la UI.
 class Formatters {
   static final intl.NumberFormat _numberFormat = intl.NumberFormat(
-    locale: 'es_CR',
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 2,
+    '#,##0.0#',
+    'es_CR',
   );
 
   /// Formatea valor de lectura.
@@ -34,7 +32,6 @@ class Formatters {
 
   /// Trunca texto largo.
   static String truncate(String text, int maxLength) {
-    if (text == null) return '';
     if (text.length <= maxLength) return text;
     return '${text.substring(0, maxLength)}...';
   }
