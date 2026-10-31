@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../bloc/auth_bloc.dart';
+import '../bloc/route_bloc.dart';
 import '../main.dart' show AsadaColors;
+import 'route_list_page.dart';
 
 /// Pantalla de login offline.
 class LoginPage extends StatefulWidget {
   final AuthBloc authBloc;
+  final RouteBloc routeBloc;
 
-  const LoginPage({required this.authBloc});
+  const LoginPage({required this.authBloc, required this.routeBloc});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -16,9 +21,13 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _FormData _form = _FormData();
   bool _showPassword = false;
+  bool _isLoading = false;
+  Timer? _timeoutTimer;
+  BuildContext? _context;
 
   @override
   Widget build(BuildContext context) {
+    _context = context;
     final bloc = widget.authBloc;
 
     return Scaffold(
@@ -135,22 +144,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       const SizedBox(height: 20),
 
-                      // Estado
-                      if (bloc.state == AuthBlocState.loading)
-                        const Center(
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(),
-                              ),
-                              SizedBox(width: 12),
-                              Text('Conectando...'),
-                            ],
-                          ),
-                        ),
-
+                      // Mensaje de error
                       if (bloc.errorMessage != null)
                         Container(
                           padding: const EdgeInsets.all(12),
@@ -169,9 +163,9 @@ class _LoginPageState extends State<LoginPage> {
 
                       const SizedBox(height: 12),
 
-                      // Botón login
+                      // Botón login con indicador de carga
                       ElevatedButton(
-                        onPressed: () => _doLogin(bloc),
+                        onPressed: _isLoading ? null : () => _doLogin(bloc),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AsadaColors.primary,
                           foregroundColor: AsadaColors.white,
@@ -180,14 +174,29 @@ class _LoginPageState extends State<LoginPage> {
                             horizontal: 48,
                           ),
                         ),
-                        child: const Text('INGRESAR'),
+                        child: _isLoading
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: AsadaColors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text('Conectando...'),
+                              ],
+                            )
+                          : const Text('INGRESAR'),
                       ),
 
                       const SizedBox(height: 8),
 
                       // Modo offline
                       TextButton(
-                        onPressed: () => _tryOffline(bloc),
+                        onPressed: _isLoading ? null : () => _tryOffline(bloc),
                         child: Text(
                           'Usar modo offline',
                           style: TextStyle(
@@ -207,19 +216,85 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _doLogin(AuthBloc bloc) async {
+  Future<void> _doLogin(AuthBloc bloc) async {
+    if (_isLoading) return;
     if (_form.serverUrl.isEmpty ||
         _form.email.isEmpty ||
         _form.apiKey.isEmpty) {
       return;
     }
-    await bloc.login(_form.serverUrl, _form.email, _form.apiKey);
+
+    setState(() => _isLoading = true);
+
+    // Timeout de 15 segundos
+    bool timedOut = false;
+    _timeoutTimer = Timer(Duration(seconds: 15), () {
+      timedOut = true;
+      bloc.setErrorMessage('Tiempo de espera agotado');
+      setState(() => _isLoading = false);
+    });
+
+    try {
+      await bloc.login(_form.serverUrl, _form.email, _form.apiKey);
+
+      if (timedOut) return;
+
+      _timeoutTimer?.cancel();
+
+      if (bloc.state == AuthBlocState.authenticated) {
+        Navigator.push(
+          _context!,
+          MaterialPageRoute(
+            builder: (_) => RouteListPage(routeBloc: widget.routeBloc),
+          ),
+        );
+      } else if (bloc.state == AuthBlocState.error) {
+        _mapErrorMessage(bloc);
+      }
+    } catch (e) {
+      if (!timedOut) {
+        bloc.setErrorMessage('Error de conexión');
+      }
+    } finally {
+      if (!timedOut) {
+        setState(() => _isLoading = false);
+      }
+      _timeoutTimer?.cancel();
+      _timeoutTimer = null;
+    }
+  }
+
+  void _mapErrorMessage(AuthBloc bloc) {
+    final msg = bloc.errorMessage ?? '';
+    String displayMsg;
+    if (msg.contains('conexión') ||
+        msg.contains('connect') ||
+        msg.contains('Sin conexión')) {
+      displayMsg = 'Error de conexión';
+    } else if (msg.contains('401') ||
+        msg.contains('unauthorized') ||
+        msg.contains('credencial') ||
+        msg.contains('Invalid')) {
+      displayMsg = 'Credenciales inválidas';
+    } else if (msg.contains('URL') ||
+        msg.contains('url') ||
+        msg.contains('servidor') ||
+        msg.contains('server')) {
+      displayMsg = 'URL incorrecta';
+    } else {
+      displayMsg = msg;
+    }
+    bloc.setErrorMessage(displayMsg);
   }
 
   void _tryOffline(AuthBloc bloc) async {
-    // Intenta con credenciales guardadas
-    // Por ahora muestra mensaje
-    bloc.setErrorMessage('Modo offline: use credenciales guardadas');
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    try {
+      await bloc.login('', '', '');
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 }
 

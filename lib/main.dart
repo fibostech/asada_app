@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
 
     // Si no está autenticado, mostrar login
     if (!deps.authBloc.isLoggedIn) {
-      return LoginPage(authBloc: deps.authBloc);
+      return LoginPage(authBloc: deps.authBloc, routeBloc: deps.routeBloc);
     }
 
     // Usuario autenticado — mostrar navegación principal
