@@ -28,7 +28,7 @@ class AuthService {
   Future<User> login(String serverUrl, String email, String apiKey) async {
     try {
       final response = await _http.post(
-        '$serverUrl/api/asada/v1/auth/login',
+        '$serverUrl/api/v1/asada/login',
         data: {
           'jsonrpc': '2.0',
           'params': {

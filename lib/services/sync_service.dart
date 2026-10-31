@@ -116,7 +116,7 @@ class SyncService {
 
   Future<void> _syncOne(Reading reading) async {
     final response = await _http.post(
-      '$_serverUrl/api/asada/v1/readings/sync',
+      '$_serverUrl/api/v1/asada/upload_readings',
       data: {
         'jsonrpc': '2.0',
         'params': {
@@ -144,15 +144,19 @@ class SyncService {
   /// Descarga rutas asignadas desde el servidor.
   Future<List<Route>> downloadRoutes(int userId) async {
     try {
-      final response = await _http.get(
-        '$_serverUrl/api/asada/v1/routes',
-        queryParameters: {
-          'user_id': userId.toString(),
-          'status': 'pending',
+      final response = await _http.post(
+        '$_serverUrl/api/v1/asada/download_route',
+        data: {
+          'jsonrpc': '2.0',
+          'params': {
+            'user_id': userId,
+            'status': 'pending',
+          },
         },
         options: dio.Options(
           headers: {
             'API-KEY': _apiKey,
+            'Content-Type': 'application/json',
           },
         ),
       );
