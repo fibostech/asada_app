@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../main.dart' show AsadaColors;
 import '../models/service_status.dart';
 
 /// Widget que muestra el estado de servicio como un badge.
@@ -32,15 +33,15 @@ class StatusBadge extends StatelessWidget {
   _BadgeConfig _configForState(ServiceState state) {
     switch (state) {
       case ServiceState.active:
-        return const _BadgeConfig(Colors.green, Colors.white);
+        return _BadgeConfig(AsadaColors.secondary, AsadaColors.white);
       case ServiceState.suspended:
-        return const _BadgeConfig(Colors.orange, Colors.white);
+        return _BadgeConfig(const Color(0xFFE8BB1D), AsadaColors.white);
       case ServiceState.disconnected:
-        return const _BadgeConfig(Colors.red, Colors.white);
+        return _BadgeConfig(const Color(0xFFEE2D2D), AsadaColors.white);
       case ServiceState.damaged:
-        return const _BadgeConfig(Colors.deepOrange, Colors.white);
+        return _BadgeConfig(const Color(0xFFEE2D2D), AsadaColors.white);
       case ServiceState.pendingInstallation:
-        return const _BadgeConfig(Colors.blue, Colors.white);
+        return _BadgeConfig(AsadaColors.primary, AsadaColors.white);
     }
   }
 

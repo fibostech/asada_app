@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Route;
 
 import '../bloc/route_bloc.dart';
+import '../main.dart' show AsadaColors;
 import '../models/route.dart';
 
 /// Pantalla de lista de rutas asignadas.
@@ -86,8 +87,23 @@ class _RouteListPageState extends State<RouteListPage> {
           );
         }
 
-        return ListView(
+        return Column(
           children: [
+            // Encabezado
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+              decoration: BoxDecoration(
+                color: AsadaColors.primary.withOpacity(0.08),
+              ),
+              child: Text(
+                'Rutas asignadas',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: AsadaColors.primary,
+                ),
+              ),
+            ),
             for (final route in routes)
               _buildRouteCard(context, route),
           ],
@@ -97,7 +113,7 @@ class _RouteListPageState extends State<RouteListPage> {
         return const Center(
           child: Column(
             children: [
-              Icon(Icons.cloud_download, size: 48, color: Colors.blue),
+              Icon(Icons.cloud_download, size: 48, color: AsadaColors.primary),
               SizedBox(height: 12),
               Text(
                 'Presione + para descargar\nsus rutas asignadas.',
@@ -110,7 +126,7 @@ class _RouteListPageState extends State<RouteListPage> {
   }
 
   Widget _buildRouteCard(BuildContext context, Route route) {
-    return Card(
+    return Card.outlined(
       child: InkWell(
         onTap: () => _openRoute(route),
         child: Padding(
@@ -120,16 +136,17 @@ class _RouteListPageState extends State<RouteListPage> {
             children: [
               Text(
                 route.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: AsadaColors.primary,
                 ),
               ),
               if (route.description != null) const SizedBox(height: 4),
               if (route.description != null)
                 Text(
                   route.description!,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  style: TextStyle(fontSize: 14, color: AsadaColors.secondary),
                 ),
               const SizedBox(height: 8),
               Row(

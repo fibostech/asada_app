@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../bloc/auth_bloc.dart';
+import '../main.dart' show AsadaColors;
 
 /// Pantalla de login offline.
 class LoginPage extends StatefulWidget {
@@ -21,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
     final bloc = widget.authBloc;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: AsadaColors.lightBg,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -30,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               // Logo / Título
               const SizedBox(height: 60),
-              const Icon(Icons.water_drop, size: 64, color: Colors.blue),
+              const Icon(Icons.water_drop, size: 64, color: AsadaColors.primary),
               const SizedBox(height: 16),
               const Text(
                 'ASADA App',
@@ -42,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               Text(
                 'Sistema de Lectura para Fontaneros',
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 14, color: AsadaColors.dark.withOpacity(0.65)),
                 textAlign: TextAlign.center,
               ),
 
@@ -66,10 +67,15 @@ class _LoginPageState extends State<LoginPage> {
                       // Servidor
                       TextFormField(
                         initialValue: _form.serverUrl,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'URL del Servidor',
                           hintText: 'https://odoo.asa-da.cr',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: AsadaColors.secondary,
+                              width: 1.0,
+                            ),
+                          ),
                         ),
                         onChanged: (v) => _form.serverUrl = v,
                       ),
@@ -78,10 +84,15 @@ class _LoginPageState extends State<LoginPage> {
                       // Email
                       TextFormField(
                         initialValue: _form.email,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Correo Electrónico',
                           hintText: 'fontanero@example.com',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: AsadaColors.secondary,
+                              width: 1.0,
+                            ),
+                          ),
                         ),
                         onChanged: (v) => _form.email = v,
                         keyboardType: TextInputType.emailAddress,
@@ -91,10 +102,15 @@ class _LoginPageState extends State<LoginPage> {
                       // API Key
                       TextFormField(
                         initialValue: _form.apiKey,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'API Key',
                           hintText: 'Ingrese su API key de Odoo',
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: AsadaColors.secondary,
+                              width: 1.0,
+                            ),
+                          ),
                         ),
                         onChanged: (v) => _form.apiKey = v,
                         obscureText: !_showPassword,
@@ -157,8 +173,8 @@ class _LoginPageState extends State<LoginPage> {
                       ElevatedButton(
                         onPressed: () => _doLogin(bloc),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
+                          backgroundColor: AsadaColors.primary,
+                          foregroundColor: AsadaColors.white,
                           padding: const EdgeInsets.symmetric(
                             vertical: 14,
                             horizontal: 48,

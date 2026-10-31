@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 120" width="100" height="120">
+  <!-- Gota de agua — logo ASADA -->
+  <defs>
+    <linearGradient id="dropGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0B4F6C"/>
+      <stop offset="50%"  stop-color="#17A398"/>
+      <stop offset="100%" stop-color="#0B4F6C"/>
+    </linearGradient>
+  </defs>
+  <!-- Cuerpo principal de la gota -->
+  <path d="M 50 10
+           C 45 12, 55 12, 50 15
+           C 40 20, 60 20, 50 25
+           C 35 30, 65 30, 50 35
+           C 30 40, 70 40, 50 45
+           C 28 50, 72 50, 50 55
+           C 28 60, 72 60, 50 65
+           C 28 70, 72 70, 50 75
+           C 30 80, 70 80, 50 85
+           C 32 85, 68 85, 50 90
+           C 35 88, 65 88, 50 92
+           C 40 90, 60 90, 50 95
+           L 50 100
+           L 50 10 Z"
+        fill="url(#dropGrad)"
+        stroke="none"/>
+  <!-- Brillo / reflejo -->
+  <ellipse cx="42" cy="35" rx="10" ry="18"
+           fill="rgba(255,255,255,0.30)"/>
+  <ellipse cx="42" cy="30" rx="5" ry="8"
+           fill="rgba(255,255,255,0.50)"/>
+  <!-- Ola/base inferior estilizada -->
+  <path d="M 25 105
+           Q 35 100, 50 103
+           Q 65 100, 75 105 Z"
+        fill="#0B4F6C" opacity="0.7"/>
+</svg>

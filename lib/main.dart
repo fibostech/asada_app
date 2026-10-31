@@ -5,6 +5,35 @@ import 'pages/login_page.dart';
 import 'pages/route_list_page.dart';
 import 'pages/sync_page.dart';
 
+// ---------------------------------------------------------------------------
+// Paleta ASADA — colores corporativos coherentes con el backend Odoo.
+// ---------------------------------------------------------------------------
+
+/// Colores de la paleta ASADA.
+class AsadaColors {
+  /// Primario (botones, navbar, headers).
+  static const Color primary = const Color(0xFF0B4F6C);
+
+  /// Secundario (detalles, iconos).
+  static const Color secondary = const Color(0xFF17A398);
+
+  /// Acento (alertas, CTAs).
+  static const Color accent = const Color(0xFFF18F01);
+
+  /// Fondos suaves.
+  static const Color lightBg = const Color(0xFFE8F4F8);
+
+  /// Textos, contrastes.
+  static const Color dark = const Color(0xFF083344);
+
+  /// Fondos principales.
+  static const Color white = const Color(0xFFFFFFFF);
+}
+
+// ---------------------------------------------------------------------------
+// Punto de entrada de la aplicación.
+// ---------------------------------------------------------------------------
+
 void main() {
   runApp(AsadaApp());
 }
@@ -20,7 +49,7 @@ class AsadaApp extends StatelessWidget {
     return MaterialApp(
       title: 'ASADA App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: AsadaColors.primary),
         useMaterial3: true,
       ),
       home: HomePage(deps: deps),
@@ -91,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   'Tiene ${deps.meterService.pendingReadings.length} '
                   'lecturas pendientes de sincronizar.',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                  style: TextStyle(fontSize: 14, color: AsadaColors.secondary),
                 ),
               ],
             ),
@@ -108,7 +137,7 @@ class _HomePageState extends State<HomePage> {
               Icons.route,
               'Rutas',
               'Ver mis rutas asignadas',
-              Colors.blue,
+              AsadaColors.primary,
               () {
                 Navigator.push(
                   context,
@@ -124,7 +153,7 @@ class _HomePageState extends State<HomePage> {
               Icons.sync,
               'Sincronizar',
               'Enviar lecturas pendientes',
-              Colors.green,
+              AsadaColors.secondary,
               () {
                 Navigator.push(
                   context,
@@ -146,7 +175,7 @@ class _HomePageState extends State<HomePage> {
               Icons.history,
               'Historial',
               'Lecturas anteriores',
-              Colors.purple,
+              AsadaColors.dark,
               () {
                 // Navegar a historial
               },
@@ -156,7 +185,7 @@ class _HomePageState extends State<HomePage> {
               Icons.settings,
               'Ajustes',
               'Configuración de la app',
-              Colors.grey,
+              AsadaColors.secondary,
               () {
                 // Navegar a ajustes
               },
@@ -197,7 +226,7 @@ class _HomePageState extends State<HomePage> {
                 SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                  style: TextStyle(fontSize: 11, color: AsadaColors.secondary),
                   textAlign: TextAlign.center,
                 ),
               ],

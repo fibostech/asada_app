@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../main.dart' show AsadaColors;
 import '../models/meter.dart';
 import '../models/service_status.dart';
 import 'status_badge.dart';
@@ -14,7 +15,10 @@ class MeterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color statusBg = _statusBackground(meter.status);
+
     return Card(
+      color: statusBg,
       child: InkWell(
         onTap: () => onTap?.call(),
         child: Padding(
@@ -49,7 +53,7 @@ class MeterCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       meter.installationAddress!,
-                      style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: 14, color: AsadaColors.secondary),
                     ),
                   ],
                 ),
@@ -88,12 +92,12 @@ class MeterCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.12),
+                    color: AsadaColors.secondary.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
                     '✓ Leído',
-                    style: TextStyle(fontSize: 11, color: Colors.green),
+                    style: TextStyle(fontSize: 11, color: AsadaColors.secondary),
                   ),
                 ),
             ],
@@ -124,10 +128,31 @@ class MeterCard extends StatelessWidget {
         return 'Activo';
       case 'inactive':
         return 'Inactivo';
+      case 'suspended':
+        return 'Suspendido';
       case 'damaged':
         return 'Dañado';
+      case 'disconnected':
+        return 'Desconectado';
       default:
         return status;
+    }
+  }
+
+  /// Retorna el color de fondo según el estado del servicio.
+  /// Coherente con los colores del backend Odoo.
+  Color _statusBackground(String status) {
+    switch (status) {
+      case 'active':
+        return AsadaColors.secondary.withOpacity(0.10); // turquesa
+      case 'suspended':
+        return const Color(0x20E8BB1D); // naranja semitransparente
+      case 'damaged':
+        return const Color(0x20EE2D2D); // rojo semitransparente
+      case 'disconnected':
+        return const Color(0x15EE2D2D); // rojo más suave
+      default:
+        return Colors.transparent;
     }
   }
 }
