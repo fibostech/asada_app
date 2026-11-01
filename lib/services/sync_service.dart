@@ -127,6 +127,7 @@ class SyncService {
         headers: {
           'API-KEY': _apiKey,
           'Content-Type': 'application/json',
+          'X-Odoo-Database': 'demo',  // TODO: hacer configurable
         },
       ),
     );
@@ -157,6 +158,7 @@ class SyncService {
           headers: {
             'API-KEY': _apiKey,
             'Content-Type': 'application/json',
+            'X-Odoo-Database': 'demo',  // TODO: hacer configurable
           },
         ),
       );
