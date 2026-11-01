@@ -23,6 +23,7 @@ class AppDependencies {
     http: http,
     serverUrl: _serverUrl,
     apiKey: _apiKey,
+    database: _database,
   );
 
   // BLoCs
@@ -43,11 +44,17 @@ class AppDependencies {
 
   String _serverUrl = '';
   String _apiKey = '';
+  String _database = 'demo';
 
   /// Configura las credenciales después del login.
-  void configureCredentials(String serverUrl, String apiKey) {
+  void configureCredentials(
+    String serverUrl,
+    String apiKey, {
+    String database = 'demo',
+  }) {
     _serverUrl = serverUrl;
     _apiKey = apiKey;
+    _database = database;
   }
 
   /// Limpia recursos.

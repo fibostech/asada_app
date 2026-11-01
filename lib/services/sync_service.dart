@@ -28,6 +28,7 @@ class SyncService {
   final dio.Dio _http;
   final String _serverUrl;
   final String _apiKey;
+  final String _database;
 
   SyncStatus _status = SyncStatus.idle;
   SyncStats _stats = const SyncStats();
@@ -39,9 +40,11 @@ class SyncService {
     required dio.Dio http,
     required String serverUrl,
     required String apiKey,
+    String database = 'demo',
   })  : _http = http,
         _serverUrl = serverUrl,
-        _apiKey = apiKey {
+        _apiKey = apiKey,
+        _database = database {
     _progressController = StreamController<SyncProgress>();
     progress = _progressController!.stream;
   }
@@ -127,7 +130,7 @@ class SyncService {
         headers: {
           'API-KEY': _apiKey,
           'Content-Type': 'application/json',
-          'X-Odoo-Database': 'demo',  // TODO: hacer configurable
+          'X-Odoo-Database': _database,
         },
       ),
     );
@@ -158,7 +161,7 @@ class SyncService {
           headers: {
             'API-KEY': _apiKey,
             'Content-Type': 'application/json',
-            'X-Odoo-Database': 'demo',  // TODO: hacer configurable
+            'X-Odoo-Database': _database,
           },
         ),
       );

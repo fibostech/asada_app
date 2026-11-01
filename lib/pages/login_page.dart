@@ -124,9 +124,44 @@ class _LoginPageState extends State<LoginPage> {
                         onChanged: (v) => _form.apiKey = v,
                         obscureText: !_showPassword,
                       ),
+                      const SizedBox(height: 12),
+
+                      // Password
+                      TextFormField(
+                        initialValue: _form.password,
+                        decoration: InputDecoration(
+                          labelText: 'Contraseña',
+                          hintText: 'Ingrese su contraseña',
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: AsadaColors.secondary,
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
+                        onChanged: (v) => _form.password = v,
+                        obscureText: !_showPassword,
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Base de datos (opcional, por defecto "demo")
+                      TextFormField(
+                        initialValue: _form.database,
+                        decoration: InputDecoration(
+                          labelText: 'Base de Datos (opcional)',
+                          hintText: 'demo',
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: AsadaColors.secondary,
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
+                        onChanged: (v) => _form.database = v,
+                      ),
                       const SizedBox(height: 8),
 
-                      // Mostrar API Key
+                      // Mostrar credenciales
                       Row(
                         children: [
                           Checkbox(
@@ -136,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(width: 8),
                           const Text(
-                            'Mostrar API Key',
+                            'Mostrar credenciales',
                             style: TextStyle(fontSize: 13),
                           ),
                         ],
@@ -220,7 +255,8 @@ class _LoginPageState extends State<LoginPage> {
     if (_isLoading) return;
     if (_form.serverUrl.isEmpty ||
         _form.email.isEmpty ||
-        _form.apiKey.isEmpty) {
+        _form.apiKey.isEmpty ||
+        _form.password.isEmpty) {
       return;
     }
 
@@ -235,7 +271,16 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      await bloc.login(_form.serverUrl, _form.email, _form.apiKey);
+      final database = _form.database.trim().isEmpty
+          ? 'demo'
+          : _form.database.trim();
+      await bloc.login(
+        _form.serverUrl,
+        _form.email,
+        _form.apiKey,
+        password: _form.password,
+        database: database,
+      );
 
       if (timedOut) return;
 
@@ -265,26 +310,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _mapErrorMessage(AuthBloc bloc) {
-    final msg = bloc.errorMessage ?? '';
-    String displayMsg;
-    if (msg.contains('conexión') ||
-        msg.contains('connect') ||
-        msg.contains('Sin conexión')) {
-      displayMsg = 'Error de conexión';
-    } else if (msg.contains('401') ||
-        msg.contains('unauthorized') ||
-        msg.contains('credencial') ||
-        msg.contains('Invalid')) {
-      displayMsg = 'Credenciales inválidas';
-    } else if (msg.contains('URL') ||
-        msg.contains('url') ||
-        msg.contains('servidor') ||
-        msg.contains('server')) {
-      displayMsg = 'URL incorrecta';
-    } else {
-      displayMsg = msg;
+    final msg = bloc.errorMessage?.trim() ?? '';
+    if (msg.isEmpty) {
+      bloc.setErrorMessage('Error de conexión');
+      return;
     }
-    bloc.setErrorMessage(displayMsg);
+    // El servicio ya entrega mensajes legibles; mostrarlos tal cual.
+    bloc.setErrorMessage(msg);
   }
 
   void _tryOffline(AuthBloc bloc) async {
@@ -302,4 +334,6 @@ class _FormData {
   String serverUrl = '';
   String email = '';
   String apiKey = '';
+  String password = '';
+  String database = '';
 }

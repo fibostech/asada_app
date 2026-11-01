@@ -8,6 +8,7 @@ import '../models/user.dart';
 /// En producción integrar flutter_secure_storage o platform keychain.
 class AuthService {
   static const String _CREDENTIALS_KEY = 'asada_saved_credentials';
+  static const String _DEFAULT_DATABASE = 'demo';
 
   // Almacén local en memoria (skeleton). En producción se persiste
   // con Isar/secure storage.
@@ -24,16 +25,24 @@ class AuthService {
   /// [serverUrl] ej. "https://odoo.example.com"
   /// [email] email del usuario
   /// [apiKey] API key generada desde Odoo
-  /// [password] contraseña opcional (usa apiKey por defecto)
+  /// [password] contraseña del usuario (usa apiKey por defecto)
+  /// [database] base de datos Odoo (por defecto "demo")
   /// Retorna el User autenticado o lanza excepción.
-  Future<User> login(String serverUrl, String email, String apiKey, {String? password}) async {
+  Future<User> login(
+    String serverUrl,
+    String email,
+    String apiKey, {
+    String? password,
+    String database = _DEFAULT_DATABASE,
+  }) async {
+    final baseUrl = _normalizeUrl(serverUrl);
     try {
       final response = await _http.post(
-        '$serverUrl/api/v1/asada/login',
+        '$baseUrl/api/v1/asada/login',
         options: dio.Options(
           headers: {
             'Content-Type': 'application/json',
-            'X-Odoo-Database': 'demo',  // TODO: hacer configurable
+            'X-Odoo-Database': database,
           },
         ),
         data: {
@@ -43,21 +52,25 @@ class AuthService {
         },
       );
 
+      // Fallback defensivo (Dio ya lanza DioException para códigos != 2xx).
       if (response.statusCode != 200) {
-        throw AuthException('Error de conexión: ${response.statusCode}');
+        throw AuthException(
+          _describeHttpError(response.statusCode, 'Error HTTP ${response.statusCode}'),
+        );
       }
 
-      final body = jsonDecode(response.data as String) as Map<String, dynamic>;
+      // Dio 5 entrega el JSON ya decodificado (Map), no un String.
+      final Map<String, dynamic> body = response.data;
       if (body['error'] != null) {
         throw AuthException(body['error']['message'] ?? 'Error desconocido');
       }
 
       final user = User.fromJson({
         'id': body['user_id'],
-        'name': body['name'],
+        'name': body['nombre'] ?? '',
         'email': email,
         'api_key': apiKey,
-        'server_url': serverUrl,
+        'server_url': baseUrl,
         'is_active': true,
       });
 
@@ -66,18 +79,54 @@ class AuthService {
       _currentUser = user;
       return user;
     } on dio.DioException catch (e) {
+      // Error HTTP: el servidor respondió con un código de error.
+      if (e.response != null) {
+        throw AuthException(
+          _describeHttpError(e.response!.statusCode, e.message ?? 'Error desconocido'),
+        );
+      }
+
       // Sin conexión — intentar credenciales guardadas
       final saved = await _loadCredentials();
       if (saved != null &&
           saved.email == email &&
-          saved.serverUrl == serverUrl) {
+          saved.serverUrl == baseUrl) {
         // Verificar API key contra la guardada
         if (saved.apiKey == apiKey) {
           _currentUser = saved;
           return saved;
         }
       }
+
+      if (e.type == dio.DioExceptionType.connectionTimeout ||
+          e.type == dio.DioExceptionType.sendTimeout ||
+          e.type == dio.DioExceptionType.receiveTimeout) {
+        throw AuthException('El servidor no responde');
+      }
       throw AuthException('Sin conexión y sin credenciales guardadas: $e');
+    }
+  }
+
+  /// Normaliza la URL del servidor: recorta espacios y elimina el slash final.
+  static String _normalizeUrl(String url) {
+    var normalized = url.trim();
+    while (normalized.endsWith('/')) {
+      normalized = normalized.substring(0, normalized.length - 1);
+    }
+    return normalized;
+  }
+
+  /// Traduce códigos HTTP a mensajes legibles para el usuario.
+  static String _describeHttpError(int? statusCode, String fallback) {
+    switch (statusCode) {
+      case 404:
+        return 'Base de datos no encontrada o URL incorrecta';
+      case 401:
+        return 'Credenciales inválidas (verifica email, password y API key)';
+      case 500:
+        return 'Error del servidor';
+      default:
+        return fallback;
     }
   }
 
@@ -127,14 +176,14 @@ class AuthService {
       final user = User.fromJson(jsonDecode(data) as Map<String, dynamic>);
       // Desofuscar API key
       final deobfuscated = User(
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            apiKey: _deobfuscate(user.apiKey),
-            serverUrl: user.serverUrl,
-            isActive: user.isActive,
-            lastSync: user.lastSync,
-          );
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        apiKey: _deobfuscate(user.apiKey),
+        serverUrl: user.serverUrl,
+        isActive: user.isActive,
+        lastSync: user.lastSync,
+      );
       return deobfuscated;
     } catch (_) {
       return null;
