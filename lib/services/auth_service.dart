@@ -38,7 +38,7 @@ class AuthService {
         data: {
           'jsonrpc': '2.0',
           'params': {
-            'email': email,
+            'login': email,
             'api_key': apiKey,
           },
         },

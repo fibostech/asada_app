@@ -37,8 +37,8 @@ class PhotoPreview extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: ocrSuccess
-                  ? Colors.green.withOpacity(0.08)
-                  : Colors.orange.withOpacity(0.08),
+                  ? Colors.green.withValues(alpha: 0.08)
+                  : Colors.orange.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(

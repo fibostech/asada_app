@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               Text(
                 'Sistema de Lectura para Fontaneros',
-                style: TextStyle(fontSize: 14, color: AsadaColors.dark.withOpacity(0.65)),
+                style: TextStyle(fontSize: 14, color: AsadaColors.dark.withValues(alpha: 0.65)),
                 textAlign: TextAlign.center,
               ),
 
@@ -149,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.10),
+                            color: Colors.red.withValues(alpha: 0.10),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
