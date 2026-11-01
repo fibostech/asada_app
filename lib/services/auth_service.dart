@@ -29,10 +29,12 @@ class AuthService {
     try {
       final response = await _http.post(
         '$serverUrl/api/v1/asada/login',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Odoo-Database': 'demo',  // TODO: hacer configurable
-        },
+        options: dio.Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Odoo-Database': 'demo',  // TODO: hacer configurable
+          },
+        ),
         data: {
           'jsonrpc': '2.0',
           'params': {
@@ -72,7 +74,7 @@ class AuthService {
           saved.email == email &&
           saved.serverUrl == serverUrl) {
         // Verificar API key contra la guardada
-        if (saved.apiKey =*** apiKey) {
+        if (saved.apiKey == apiKey) {
           _currentUser = saved;
           return saved;
         }
