@@ -24,8 +24,9 @@ class AuthService {
   /// [serverUrl] ej. "https://odoo.example.com"
   /// [email] email del usuario
   /// [apiKey] API key generada desde Odoo
+  /// [password] contraseña opcional (usa apiKey por defecto)
   /// Retorna el User autenticado o lanza excepción.
-  Future<User> login(String serverUrl, String email, String apiKey) async {
+  Future<User> login(String serverUrl, String email, String apiKey, {String? password}) async {
     try {
       final response = await _http.post(
         '$serverUrl/api/v1/asada/login',
@@ -36,11 +37,9 @@ class AuthService {
           },
         ),
         data: {
-          'jsonrpc': '2.0',
-          'params': {
-            'login': email,
-            'api_key': apiKey,
-          },
+          'login': email,
+          'password': password ?? apiKey,
+          'api_key': apiKey,
         },
       );
 
@@ -53,10 +52,9 @@ class AuthService {
         throw AuthException(body['error']['message'] ?? 'Error desconocido');
       }
 
-      final result = body['result'] as Map<String, dynamic>;
       final user = User.fromJson({
-        'id': result['user_id'],
-        'name': result['name'],
+        'id': body['user_id'],
+        'name': body['name'],
         'email': email,
         'api_key': apiKey,
         'server_url': serverUrl,

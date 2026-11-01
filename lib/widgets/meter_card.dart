@@ -92,7 +92,7 @@ class MeterCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
                   decoration: BoxDecoration(
-                    color: AsadaColors.secondary.withValues(alpha: 0.12),
+                    color: AsadaColors.secondary.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
@@ -144,7 +144,7 @@ class MeterCard extends StatelessWidget {
   Color _statusBackground(String status) {
     switch (status) {
       case 'active':
-        return AsadaColors.secondary.withValues(alpha: 0.10); // turquesa
+        return AsadaColors.secondary.withOpacity(0.10); // turquesa
       case 'suspended':
         return const Color(0x20E8BB1D); // naranja semitransparente
       case 'damaged':

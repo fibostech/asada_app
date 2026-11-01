@@ -38,13 +38,13 @@ class AuthBloc {
   }
 
   /// Inicia sesión.
-  Future<void> login(String serverUrl, String email, String apiKey) async {
+  Future<void> login(String serverUrl, String email, String apiKey, {String? password}) async {
     _state = AuthBlocState.loading;
     _errorMessage = null;
     _emitState();
 
     try {
-      await _authService.login(serverUrl, email, apiKey);
+      await _authService.login(serverUrl, email, apiKey, password: password);
       _state = AuthBlocState.authenticated;
     } on AuthException catch (e) {
       _state = AuthBlocState.error;
