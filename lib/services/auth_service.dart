@@ -16,17 +16,21 @@ class AuthService {
 
   final dio.Dio _http;
   User? _currentUser;
+  String? _pairingServerUrl;
 
   AuthService({
     required dio.Dio http,
   }) : _http = http;
 
+  /// Configura la URL del servidor obtenida del pairing.
+  void setPairingServerUrl(String? url) {
+    _pairingServerUrl = url;
+  }
+
   /// Intenta login contra Odoo.
-  /// [serverUrl] ej. "https://odoo.example.com"
+  /// [serverUrl] se ignora si el pairing ya proveyó una URL.
   /// [email] email del usuario
-  /// [apiKey] API key generada desde Odoo
-  /// [password] contraseña del usuario (usa apiKey por defecto)
-  /// [database] base de datos Odoo (por defecto "demo")
+  /// [password] contraseña del usuario
   /// Retorna el User autenticado o lanza excepción.
   Future<User> login(
     String serverUrl,
@@ -35,7 +39,12 @@ class AuthService {
     String? password,
     String database = _DEFAULT_DATABASE,
   }) async {
-    final baseUrl = _normalizeUrl(serverUrl);
+    // Usar URL del pairing si está disponible
+    final baseUrl = _pairingServerUrl ?? _normalizeUrl(serverUrl);
+    if (baseUrl.isEmpty) {
+      throw AuthException('No hay URL del servidor configurada');
+    }
+
     try {
       final response = await _http.post(
         '$baseUrl/api/v1/asada/login',
@@ -47,8 +56,8 @@ class AuthService {
         ),
         data: {
           'login': email,
-          'password': password ?? apiKey,
-          'api_key': apiKey,
+          'password': password ?? '',
+          'api_key': password ?? '',
         },
       );
 
@@ -69,12 +78,12 @@ class AuthService {
         'id': body['user_id'],
         'name': body['nombre'] ?? '',
         'email': email,
-        'api_key': apiKey,
+        'api_key': password ?? '',
         'server_url': baseUrl,
         'is_active': true,
       });
 
-      // Guardar localmente con API key ofuscada
+      // Guardar localmente
       await _saveCredentials(user);
       _currentUser = user;
       return user;
@@ -91,8 +100,7 @@ class AuthService {
       if (saved != null &&
           saved.email == email &&
           saved.serverUrl == baseUrl) {
-        // Verificar API key contra la guardada
-        if (saved.apiKey == apiKey) {
+        if (saved.apiKey == password) {
           _currentUser = saved;
           return saved;
         }
@@ -122,7 +130,7 @@ class AuthService {
       case 404:
         return 'Base de datos no encontrada o URL incorrecta';
       case 401:
-        return 'Credenciales inválidas (verifica email, password y API key)';
+        return 'Credenciales inválidas (verifica email y contraseña)';
       case 500:
         return 'Error del servidor';
       default:

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 import 'pages/login_page.dart';
+import 'pages/pairing_page.dart';
 import 'pages/route_list_page.dart';
+import 'pages/settings_page.dart';
 import 'pages/sync_page.dart';
 
 // ---------------------------------------------------------------------------
@@ -12,22 +14,22 @@ import 'pages/sync_page.dart';
 /// Colores de la paleta ASADA.
 class AsadaColors {
   /// Primario (botones, navbar, headers).
-  static const Color primary = const Color(0xFF0B4F6C);
+  static const Color primary = Color(0xFF0B4F6C);
 
   /// Secundario (detalles, iconos).
-  static const Color secondary = const Color(0xFF17A398);
+  static const Color secondary = Color(0xFF17A398);
 
   /// Acento (alertas, CTAs).
-  static const Color accent = const Color(0xFFF18F01);
+  static const Color accent = Color(0xFFF18F01);
 
   /// Fondos suaves.
-  static const Color lightBg = const Color(0xFFE8F4F8);
+  static const Color lightBg = Color(0xFFE8F4F8);
 
   /// Textos, contrastes.
-  static const Color dark = const Color(0xFF083344);
+  static const Color dark = Color(0xFF083344);
 
   /// Fondos principales.
-  static const Color white = const Color(0xFFFFFFFF);
+  static const Color white = Color(0xFFFFFFFF);
 }
 
 // ---------------------------------------------------------------------------
@@ -57,7 +59,7 @@ class AsadaApp extends StatelessWidget {
   }
 }
 
-/// Página principal que maneja la navegación según autenticación.
+/// Página principal que maneja la navegación según autenticación y pairing.
 class HomePage extends StatefulWidget {
   final AppDependencies deps;
 
@@ -68,11 +70,44 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _loaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPairing();
+  }
+
+  Future<void> _loadPairing() async {
+    await widget.deps.pairingService.load();
+    // Pasar URL del pairing al AuthService
+    widget.deps.authService
+        .setPairingServerUrl(widget.deps.pairingService.serverUrl);
+    if (mounted) setState(() => _loaded = true);
+  }
+
   @override
   Widget build(BuildContext context) {
     final deps = widget.deps;
 
-    // Si no está autenticado, mostrar login
+    if (!_loaded) {
+      return Scaffold(
+        backgroundColor: AsadaColors.lightBg,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Si NO hay pairing → mostrar pantalla de emparejamiento
+    if (!deps.pairingService.isPaired) {
+      return PairingPage(
+        pairingService: deps.pairingService,
+        onPaired: () {
+          setState(() {});
+        },
+      );
+    }
+
+    // Si no está autenticado → mostrar login simplificado
     if (!deps.authBloc.isLoggedIn) {
       return LoginPage(authBloc: deps.authBloc, routeBloc: deps.routeBloc);
     }
@@ -84,8 +119,29 @@ class _HomePageState extends State<HomePage> {
   Widget _buildMainNavigation(BuildContext context, AppDependencies deps) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ASADA App'),
+        title: const Text('ASADA App'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: 'Ajustes',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SettingsPage(
+                    pairingService: deps.pairingService,
+                    onReset: () {
+                      // Limpiar sesión también
+                      deps.authBloc.logout();
+                      setState(() {});
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: _buildDashboard(context, deps),
       bottomNavigationBar: _buildBottomNav(context, deps),
@@ -98,17 +154,17 @@ class _HomePageState extends State<HomePage> {
         // Bienvenida
         Card(
           child: Padding(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               children: [
                 Row(
                   children: [
-                    Icon(Icons.person, size: 32),
-                    SizedBox(width: 12),
+                    const Icon(Icons.person, size: 32),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Bienvenido, ${deps.authBloc.currentUser?.name ?? "Fontanero"}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -116,18 +172,21 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Tiene ${deps.meterService.pendingReadings.length} '
                   'lecturas pendientes de sincronizar.',
-                  style: TextStyle(fontSize: 14, color: AsadaColors.secondary),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AsadaColors.secondary,
+                  ),
                 ),
               ],
             ),
           ),
         ),
 
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
 
         // Accesos rápidos
         Row(
@@ -166,7 +225,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
 
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
 
         Row(
           children: [
@@ -187,7 +246,18 @@ class _HomePageState extends State<HomePage> {
               'Configuración de la app',
               AsadaColors.secondary,
               () {
-                // Navegar a ajustes
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SettingsPage(
+                      pairingService: deps.pairingService,
+                      onReset: () {
+                        deps.authBloc.logout();
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                );
               },
             ),
           ],
@@ -209,24 +279,27 @@ class _HomePageState extends State<HomePage> {
         child: InkWell(
           onTap: () => onTap(),
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(icon, size: 32, color: color),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(fontSize: 11, color: AsadaColors.secondary),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AsadaColors.secondary,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -243,29 +316,31 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(
-            icon: Icon(Icons.home),
+            icon: const Icon(Icons.home),
             tooltip: 'Inicio',
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => HomePage(deps: deps)),
+                MaterialPageRoute(
+                    builder: (_) => HomePage(deps: deps)),
               );
             },
           ),
           IconButton(
-            icon: Icon(Icons.route),
+            icon: const Icon(Icons.route),
             tooltip: 'Rutas',
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => RouteListPage(routeBloc: deps.routeBloc),
+                  builder: (_) =>
+                      RouteListPage(routeBloc: deps.routeBloc),
                 ),
               );
             },
           ),
           IconButton(
-            icon: Icon(Icons.sync),
+            icon: const Icon(Icons.sync),
             tooltip: 'Sincronizar',
             onPressed: () {
               Navigator.push(
@@ -277,7 +352,7 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.person),
+            icon: const Icon(Icons.person),
             tooltip: 'Perfil',
             onPressed: () {
               // Perfil / Cerrar sesión

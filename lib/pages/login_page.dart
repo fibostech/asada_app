@@ -7,7 +7,9 @@ import '../bloc/route_bloc.dart';
 import '../main.dart' show AsadaColors;
 import 'route_list_page.dart';
 
-/// Pantalla de login offline.
+/// Pantalla de login diario simplificada.
+/// Solo muestra Usuario (email) y Contraseña.
+/// La URL del servidor se obtiene del pairing previo.
 class LoginPage extends StatefulWidget {
   final AuthBloc authBloc;
   final RouteBloc routeBloc;
@@ -19,11 +21,20 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _FormData _form = _FormData();
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
   bool _showPassword = false;
   bool _isLoading = false;
   Timer? _timeoutTimer;
   BuildContext? _context;
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    _timeoutTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +63,10 @@ class _LoginPageState extends State<LoginPage> {
               ),
               Text(
                 'Sistema de Lectura para Fontaneros',
-                style: TextStyle(fontSize: 14, color: AsadaColors.dark.withOpacity(0.65)),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AsadaColors.dark.withValues(alpha: 0.65),
+                ),
                 textAlign: TextAlign.center,
               ),
 
@@ -73,91 +87,36 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Servidor
-                      TextFormField(
-                        initialValue: _form.serverUrl,
-                        decoration: InputDecoration(
-                          labelText: 'URL del Servidor',
-                          hintText: 'https://odoo.asa-da.cr',
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AsadaColors.secondary,
-                              width: 1.0,
-                            ),
-                          ),
-                        ),
-                        onChanged: (v) => _form.serverUrl = v,
-                      ),
-                      const SizedBox(height: 12),
-
                       // Email
                       TextFormField(
-                        initialValue: _form.email,
-                        decoration: InputDecoration(
-                          labelText: 'Correo Electrónico',
+                        controller: _emailCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'Usuario',
                           hintText: 'fontanero@example.com',
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AsadaColors.secondary,
-                              width: 1.0,
-                            ),
-                          ),
+                          border: OutlineInputBorder(),
                         ),
-                        onChanged: (v) => _form.email = v,
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 12),
 
-                      // API Key
+                      // Contraseña
                       TextFormField(
-                        initialValue: _form.apiKey,
-                        decoration: InputDecoration(
-                          labelText: 'API Key',
-                          hintText: 'Ingrese su API key de Odoo',
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AsadaColors.secondary,
-                              width: 1.0,
-                            ),
-                          ),
-                        ),
-                        onChanged: (v) => _form.apiKey = v,
-                        obscureText: !_showPassword,
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Password
-                      TextFormField(
-                        initialValue: _form.password,
+                        controller: _passwordCtrl,
                         decoration: InputDecoration(
                           labelText: 'Contraseña',
                           hintText: 'Ingrese su contraseña',
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AsadaColors.secondary,
-                              width: 1.0,
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _showPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
                             ),
+                            onPressed: () =>
+                                setState(() => _showPassword = !_showPassword),
                           ),
                         ),
-                        onChanged: (v) => _form.password = v,
                         obscureText: !_showPassword,
-                      ),
-                      const SizedBox(height: 12),
-
-                      // Base de datos (opcional, por defecto "demo")
-                      TextFormField(
-                        initialValue: _form.database,
-                        decoration: InputDecoration(
-                          labelText: 'Base de Datos (opcional)',
-                          hintText: 'demo',
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: AsadaColors.secondary,
-                              width: 1.0,
-                            ),
-                          ),
-                        ),
-                        onChanged: (v) => _form.database = v,
                       ),
                       const SizedBox(height: 8),
 
@@ -171,7 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                           const SizedBox(width: 8),
                           const Text(
-                            'Mostrar credenciales',
+                            'Mostrar contraseña',
                             style: TextStyle(fontSize: 13),
                           ),
                         ],
@@ -184,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.10),
+                            color: Colors.red.withValues(alpha: 0.10),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -210,21 +169,21 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         child: _isLoading
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: AsadaColors.white,
+                            ? const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: AsadaColors.white,
+                                    ),
                                   ),
-                                ),
-                                SizedBox(width: 8),
-                                Text('Conectando...'),
-                              ],
-                            )
-                          : const Text('INGRESAR'),
+                                  SizedBox(width: 8),
+                                  Text('Conectando...'),
+                                ],
+                              )
+                            : const Text('INGRESAR'),
                       ),
 
                       const SizedBox(height: 8),
@@ -253,10 +212,10 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _doLogin(AuthBloc bloc) async {
     if (_isLoading) return;
-    if (_form.serverUrl.isEmpty ||
-        _form.email.isEmpty ||
-        _form.apiKey.isEmpty ||
-        _form.password.isEmpty) {
+    final email = _emailCtrl.text.trim();
+    final password = _passwordCtrl.text.trim();
+    if (email.isEmpty || password.isEmpty) {
+      bloc.setErrorMessage('Ingresa usuario y contraseña');
       return;
     }
 
@@ -264,22 +223,19 @@ class _LoginPageState extends State<LoginPage> {
 
     // Timeout de 15 segundos
     bool timedOut = false;
-    _timeoutTimer = Timer(Duration(seconds: 15), () {
+    _timeoutTimer = Timer(const Duration(seconds: 15), () {
       timedOut = true;
       bloc.setErrorMessage('Tiempo de espera agotado');
       setState(() => _isLoading = false);
     });
 
     try {
-      final database = _form.database.trim().isEmpty
-          ? 'demo'
-          : _form.database.trim();
+      // La URL del servidor se obtiene del pairing (ya guardada)
       await bloc.login(
-        _form.serverUrl,
-        _form.email,
-        _form.apiKey,
-        password: _form.password,
-        database: database,
+        '', // serverUrl se obtiene del pairing en auth_service
+        email,
+        '', // apiKey se asigna desde el pairing en auth_service
+        password: password,
       );
 
       if (timedOut) return;
@@ -315,7 +271,6 @@ class _LoginPageState extends State<LoginPage> {
       bloc.setErrorMessage('Error de conexión');
       return;
     }
-    // El servicio ya entrega mensajes legibles; mostrarlos tal cual.
     bloc.setErrorMessage(msg);
   }
 
@@ -328,12 +283,4 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _isLoading = false);
     }
   }
-}
-
-class _FormData {
-  String serverUrl = '';
-  String email = '';
-  String apiKey = '';
-  String password = '';
-  String database = '';
 }

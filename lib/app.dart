@@ -8,6 +8,7 @@ import 'services/auth_service.dart';
 import 'services/camera_service.dart';
 import 'services/meter_service.dart';
 import 'services/ocr_service.dart';
+import 'services/pairing_service.dart';
 import 'services/sync_service.dart';
 
 /// Inicializador y contenedor de dependencias de la app.
@@ -15,11 +16,12 @@ class AppDependencies {
   dio.Dio http = dio.Dio();
 
   // Servicios
+  late final PairingService pairingService = PairingService(http: http);
   late final AuthService authService = AuthService(http: http);
   late final CameraService cameraService = CameraService();
   late final MeterService meterService = MeterService();
   late final OcrService ocrService = OcrService();
-  late final SyncService syncService = SyncService(
+  late SyncService syncService = SyncService(
     http: http,
     serverUrl: _serverUrl,
     apiKey: _apiKey,
@@ -55,7 +57,20 @@ class AppDependencies {
     _serverUrl = serverUrl;
     _apiKey = apiKey;
     _database = database;
+    // Actualizar syncService con nuevas credenciales
+    syncService = SyncService(
+      http: http,
+      serverUrl: _serverUrl,
+      apiKey: _apiKey,
+      database: _database,
+    );
   }
+
+  /// Obtiene la URL del servidor desde el pairing.
+  String? get serverUrlFromPairing => pairingService.serverUrl;
+
+  /// Obtiene el token desde el pairing.
+  String? get tokenFromPairing => pairingService.token;
 
   /// Limpia recursos.
   void dispose() {
