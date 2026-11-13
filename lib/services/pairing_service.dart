@@ -74,6 +74,7 @@ class PairingService {
         '$baseUrl/api/v1/asada/pairing/claim',
         options: dio.Options(headers: {
           'Content-Type': 'application/json',
+          'X-Odoo-Database': 'asadadev',
         }),
         data: {
           'token': token,
