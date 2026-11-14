@@ -1,5 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart' as dio;
+
+import '../models/pairing.dart';
 
 /// Datos de pairing guardados localmente.
 class PairingData {
@@ -20,17 +24,31 @@ class PairingData {
 }
 
 /// Servicio de pairing: emparejamiento inicial con el servidor Odoo.
-/// Almacena server_url y token localmente en memoria (skeleton).
-/// En producción se persiste con Isar/secure storage.
+///
+/// Almacena server_url y token de forma persistente en disco usando
+/// dart:io File, para que los datos sobrevivan reinicios de la app.
+/// El modelo [Pairing] queda preparado para migrar a Isar Database
+/// cuando se configure el generador de Isar.
 class PairingService {
-  static const String _PAIRING_KEY = 'asada_pairing_data';
-  static final Map<String, String> _localStore = {};
-
+  static const String _FILE_NAME = 'asada_pairing.json';
   final dio.Dio _http;
+  final Directory _storageDir;
 
   PairingData? _pairingData;
 
-  PairingService({required dio.Dio http}) : _http = http;
+  /// Crea el servicio.
+  ///
+  /// [storageDir] es el directorio donde se persiste el archivo JSON.
+  /// Si se omite, se usa Directory.systemTemp (ideal para tests).
+  PairingService({
+    required dio.Dio http,
+    Directory? storageDir,
+  })  : _http = http,
+        _storageDir = storageDir ?? Directory.systemTemp;
+
+  /// Ruta completa del archivo de persistencia.
+  String get _filePath =>
+      '${_storageDir.path}/${_FILE_NAME}';
 
   /// ¿Ya hay datos de pairing guardados?
   bool get isPaired => _pairingData != null;
@@ -41,28 +59,35 @@ class PairingService {
   /// Token guardado.
   String? get token => _pairingData?.token;
 
-  /// Carga datos de pairing desde almacén local.
+  /// Carga datos de pairing desde el archivo persistente.
   Future<void> load() async {
-    final data = _localStore[_PAIRING_KEY];
-    if (data == null) return;
+    final file = File(_filePath);
+    if (!await file.exists()) return;
     try {
+      final raw = await file.readAsString();
+      if (raw.isEmpty) return;
       _pairingData =
-          PairingData.fromJson(jsonDecode(data) as Map<String, dynamic>);
+          PairingData.fromJson(jsonDecode(raw) as Map<String, dynamic>);
     } catch (_) {
       _pairingData = null;
     }
   }
 
-  /// Guarda datos de pairing.
+  /// Guarda datos de pairing en disco (sobreescribe).
   Future<void> save(PairingData data) async {
     _pairingData = data;
-    _localStore[_PAIRING_KEY] = jsonEncode(data.toJson());
+    // Asegurar que el directorio existe
+    await _storageDir.create(recursive: true);
+    await File(_filePath).writeAsString(jsonEncode(data.toJson()));
   }
 
-  /// Limpia datos de pairing.
+  /// Elimina el archivo de persistencia.
   Future<void> clear() async {
     _pairingData = null;
-    _localStore.remove(_PAIRING_KEY);
+    final file = File(_filePath);
+    if (await file.exists()) {
+      await file.delete();
+    }
   }
 
   /// Reclama un token de pairing contra el servidor.
