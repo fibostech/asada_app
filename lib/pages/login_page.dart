@@ -21,6 +21,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _serverUrlCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   bool _showPassword = false;
@@ -30,6 +31,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
+    _serverUrlCtrl.dispose();
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
     _timeoutTimer?.cancel();
@@ -86,6 +88,18 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
+
+                      // URL del servidor
+                      TextFormField(
+                        controller: _serverUrlCtrl,
+                        decoration: const InputDecoration(
+                          labelText: 'URL del servidor',
+                          hintText: 'https://ejemplo.com',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.url,
+                      ),
+                      const SizedBox(height: 12),
 
                       // Email
                       TextFormField(
@@ -230,11 +244,12 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      // La URL del servidor se obtiene del pairing (ya guardada)
+      final serverUrl = _serverUrlCtrl.text.trim();
+      // Si el pairing proveyó URL, se usa; si no, la ingresada por el usuario
       await bloc.login(
-        '', // serverUrl se obtiene del pairing en auth_service
+        serverUrl,
         email,
-        '', // apiKey se asigna desde el pairing en auth_service
+        '',
         password: password,
       );
 

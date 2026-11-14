@@ -40,7 +40,7 @@ class AuthService {
     String database = _DEFAULT_DATABASE,
   }) async {
     // Usar URL del pairing si está disponible
-    final baseUrl = _pairingServerUrl ?? _normalizeUrl(serverUrl);
+    final baseUrl = _normalizeUrl(_pairingServerUrl ?? serverUrl);
     if (baseUrl.isEmpty) {
       throw AuthException('No hay URL del servidor configurada');
     }
