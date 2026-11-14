@@ -9,17 +9,20 @@ import '../models/pairing.dart';
 class PairingData {
   final String serverUrl;
   final String token;
+  final String? dbName;
 
-  PairingData({required this.serverUrl, required this.token});
+  PairingData({required this.serverUrl, required this.token, this.dbName});
 
   Map<String, dynamic> toJson() => {
         'server_url': serverUrl,
         'token': token,
+        if (dbName != null) 'db_name': dbName,
       };
 
   factory PairingData.fromJson(Map<String, dynamic> json) => PairingData(
         serverUrl: json['server_url'] as String,
         token: json['token'] as String,
+        dbName: json['db_name'] as String?,
       );
 }
 
@@ -59,6 +62,9 @@ class PairingService {
   /// Token guardado.
   String? get token => _pairingData?.token;
 
+  /// Nombre de base de datos guardado.
+  String? get dbName => _pairingData?.dbName;
+
   /// Carga datos de pairing desde el archivo persistente.
   Future<void> load() async {
     final file = File(_filePath);
@@ -92,14 +98,17 @@ class PairingService {
 
   /// Reclama un token de pairing contra el servidor.
   /// Retorna la URL del servidor si el reclamo es exitoso.
-  Future<String> claimToken(String serverUrl, String token) async {
+  /// [dbName] nombre de base de datos opcional (desde QR).
+  /// Si no se provee, se usa el header environment o 'asadadev' como fallback.
+  Future<String> claimToken(String serverUrl, String token, {String? dbName}) async {
     final baseUrl = _normalizeUrl(serverUrl);
+    final database = dbName ?? 'asadadev';
     try {
       final response = await _http.post(
         '$baseUrl/api/v1/asada/pairing/claim',
         options: dio.Options(headers: {
           'Content-Type': 'application/json',
-          'X-Odoo-Database': 'asadadev',
+          'X-Odoo-Database': database,
         }),
         data: {
           'token': token,
@@ -117,8 +126,12 @@ class PairingService {
             body['error']['message'] ?? 'Error al reclamar token');
       }
 
+      // Leer db_name del response body; si no viene, usar el que se pasó
+      // o 'asadadev' como fallback
+      final effectiveDbName = body['db_name'] as String? ?? database;
+
       // Guardar pairing exitoso
-      await save(PairingData(serverUrl: baseUrl, token: token));
+      await save(PairingData(serverUrl: baseUrl, token: token, dbName: effectiveDbName));
       return baseUrl;
     } on dio.DioException catch (e) {
       if (e.response != null) {

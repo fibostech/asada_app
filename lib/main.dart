@@ -80,9 +80,11 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _loadPairing() async {
     await widget.deps.pairingService.load();
-    // Pasar URL del pairing al AuthService
+    // Pasar URL del pairing y database al AuthService
     widget.deps.authService
         .setPairingServerUrl(widget.deps.pairingService.serverUrl);
+    widget.deps.authService
+        .setPairingDbName(widget.deps.pairingService.dbName);
     if (mounted) setState(() => _loaded = true);
   }
 

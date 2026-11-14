@@ -326,6 +326,7 @@ class _PairingPageState extends State<PairingPage> {
           jsonDecode(rawValue) as Map<String, dynamic>;
       final serverUrl = json['server_url'] as String?;
       final token = json['token'] as String?;
+      final dbName = json['db_name'] as String?;
 
       if (serverUrl == null || token == null) {
         setState(() {
@@ -335,7 +336,7 @@ class _PairingPageState extends State<PairingPage> {
         return;
       }
 
-      _claimWithToken(serverUrl, token);
+      _claimWithToken(serverUrl, token, dbName);
     } catch (e) {
       setState(() {
         _errorMessage = 'QR inválido: no es un JSON válido';
@@ -345,14 +346,14 @@ class _PairingPageState extends State<PairingPage> {
   }
 
   // --- RECLAMAR TOKEN (desde QR) ---
-  Future<void> _claimWithToken(String serverUrl, String token) async {
+  Future<void> _claimWithToken(String serverUrl, String token, [String? dbName]) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      await widget.pairingService.claimToken(serverUrl, token);
+      await widget.pairingService.claimToken(serverUrl, token, dbName: dbName);
       if (!mounted) return;
       widget.onPaired();
     } on PairingException catch (e) {

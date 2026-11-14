@@ -17,6 +17,7 @@ class AuthService {
   final dio.Dio _http;
   User? _currentUser;
   String? _pairingServerUrl;
+  String? _pairingDbName;
 
   AuthService({
     required dio.Dio http,
@@ -25,6 +26,11 @@ class AuthService {
   /// Configura la URL del servidor obtenida del pairing.
   void setPairingServerUrl(String? url) {
     _pairingServerUrl = url;
+  }
+
+  /// Configura el nombre de base de datos obtenido del pairing.
+  void setPairingDbName(String? dbName) {
+    _pairingDbName = dbName;
   }
 
   /// Intenta login contra Odoo.
@@ -45,13 +51,16 @@ class AuthService {
       throw AuthException('No hay URL del servidor configurada');
     }
 
+    // Usar dbName del pairing si está disponible y no se pasó uno explícito
+    final effectiveDbName = _pairingDbName ?? database;
+
     try {
       final response = await _http.post(
         '$baseUrl/api/v1/asada/login',
         options: dio.Options(
           headers: {
             'Content-Type': 'application/json',
-            'X-Odoo-Database': database,
+            'X-Odoo-Database': effectiveDbName,
           },
         ),
         data: {

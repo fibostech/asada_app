@@ -49,6 +49,8 @@ class SettingsPage extends StatelessWidget {
                   if (pairingService.isPaired) ...[
                     _infoRow('Servidor', pairingService.serverUrl ?? '—'),
                     const SizedBox(height: 4),
+                    _infoRow('Base de datos', pairingService.dbName ?? '—'),
+                    const SizedBox(height: 4),
                     _infoRow('Token', '••••••••'),
                   ] else
                     const Text(
