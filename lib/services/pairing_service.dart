@@ -106,10 +106,13 @@ class PairingService {
     try {
       final response = await _http.post(
         '$baseUrl/api/v1/asada/pairing/claim',
-        options: dio.Options(headers: {
-          'Content-Type': 'application/json',
-          'X-Odoo-Database': database,
-        }),
+        options: dio.Options(
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Odoo-Database': database,
+          },
+          validateStatus: (status) => true,
+        ),
         data: {
           'token': token,
         },

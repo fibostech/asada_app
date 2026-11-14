@@ -62,6 +62,7 @@ class AuthService {
             'Content-Type': 'application/json',
             'X-Odoo-Database': effectiveDbName,
           },
+          validateStatus: (status) => true,
         ),
         data: {
           'login': email,
