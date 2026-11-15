@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:dio/dio.dart' as dio;
 
 import '../models/pairing.dart';
 
@@ -34,7 +33,6 @@ class PairingData {
 /// cuando se configure el generador de Isar.
 class PairingService {
   static const String _FILE_NAME = 'asada_pairing.json';
-  final dio.Dio _http;
   final Directory _storageDir;
 
   PairingData? _pairingData;
@@ -43,11 +41,8 @@ class PairingService {
   ///
   /// [storageDir] es el directorio donde se persiste el archivo JSON.
   /// Si se omite, se usa Directory.systemTemp (ideal para tests).
-  PairingService({
-    required dio.Dio http,
-    Directory? storageDir,
-  })  : _http = http,
-        _storageDir = storageDir ?? Directory.systemTemp;
+  PairingService({Directory? storageDir})
+      : _storageDir = storageDir ?? Directory.systemTemp;
 
   /// Ruta completa del archivo de persistencia.
   String get _filePath =>
@@ -99,54 +94,56 @@ class PairingService {
   /// Reclama un token de pairing contra el servidor.
   /// Retorna la URL del servidor si el reclamo es exitoso.
   /// [dbName] nombre de base de datos opcional (desde QR).
-  /// Si no se provee, se usa el header environment o 'asadadev' como fallback.
-  Future<String> claimToken(String serverUrl, String token, {String? dbName}) async {
+  /// Si no se provee, se usa 'asadadev' como fallback.
+  Future<String> claimToken(
+      String serverUrl, String token, {String? dbName}) async {
     final baseUrl = _normalizeUrl(serverUrl);
     final database = dbName ?? 'asadadev';
-    try {
-      final response = await _http.post(
-        '$baseUrl/api/v1/asada/pairing/claim',
-        options: dio.Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Odoo-Database': database,
-          },
-          validateStatus: (status) => true,
-        ),
-        data: {
-          'token': token,
-        },
-      );
+    final url = '$baseUrl/api/v1/asada/pairing/claim';
+    final body = jsonEncode({'token': token});
 
-      if (response.statusCode != 200) {
+    final client = HttpClient();
+    try {
+      final request = await client.postUrl(Uri.parse(url));
+      request.headers.set('Content-Type', 'application/json');
+      request.headers.set('X-Odoo-Database', database);
+      request.write(body);
+
+      final response = await request.close();
+
+      // Leer body completo como string
+      final responseBody = await response.transform(utf8.decoder).join();
+      final result = jsonDecode(responseBody) as Map<String, dynamic>? ?? {};
+
+      if (result['error'] != null) {
+        throw PairingException(
+            result['error']['message'] ?? 'Error al reclamar token');
+      }
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
         throw PairingException(
             'Error HTTP ${response.statusCode}: token inválido');
       }
 
-      final body = response.data as Map<String, dynamic>? ?? {};
-      if (body['error'] != null) {
-        throw PairingException(
-            body['error']['message'] ?? 'Error al reclamar token');
-      }
-
       // Leer db_name del response body; si no viene, usar el que se pasó
       // o 'asadadev' como fallback
-      final effectiveDbName = body['db_name'] as String? ?? database;
+      final effectiveDbName =
+          result['db_name'] as String? ?? database;
 
       // Guardar pairing exitoso
-      await save(PairingData(serverUrl: baseUrl, token: token, dbName: effectiveDbName));
+      await save(PairingData(
+          serverUrl: baseUrl, token: token, dbName: effectiveDbName));
       return baseUrl;
-    } on dio.DioException catch (e) {
-      if (e.response != null) {
-        throw PairingException(
-            'Error del servidor (${e.response?.statusCode})');
-      }
-      if (e.type == dio.DioExceptionType.connectionTimeout ||
-          e.type == dio.DioExceptionType.sendTimeout ||
-          e.type == dio.DioExceptionType.receiveTimeout) {
-        throw PairingException('El servidor no responde');
-      }
+    } on SocketException catch (_) {
       throw PairingException('Sin conexión al servidor');
+    } on HttpException catch (_) {
+      throw PairingException('El servidor no responde');
+    } on PairingException catch (_) {
+      rethrow;
+    } catch (e) {
+      throw PairingException('Error de conexión: ${e}');
+    } finally {
+      client.close();
     }
   }
 

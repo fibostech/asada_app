@@ -16,7 +16,7 @@ class AppDependencies {
   dio.Dio http = dio.Dio();
 
   // Servicios
-  late final PairingService pairingService = PairingService(http: http);
+  late final PairingService pairingService = PairingService();
   late final AuthService authService = AuthService(http: http);
   late final CameraService cameraService = CameraService();
   late final MeterService meterService = MeterService();
